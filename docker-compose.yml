@@ -1,0 +1,48 @@
+version: "3.9"
+
+services:
+  app:
+    build: .
+    container_name: conectaai-app
+    ports:
+      - "8080:8080"
+    environment:
+      ASAAS_TOKEN: ${ASAAS_TOKEN}
+      STRIPE_SECRET: ${STRIPE_SECRET}
+      MP_ACCESS_TOKEN: ${MP_ACCESS_TOKEN}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/conectaai
+      SPRING_DATASOURCE_USERNAME: conectaai
+      SPRING_DATASOURCE_PASSWORD: conectaai
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: guest
+      SPRING_RABBITMQ_PASSWORD: guest
+
+    depends_on:
+      - db
+      - rabbitmq
+
+  db:
+    image: postgres:15
+    container_name: conectaai-postgres
+    environment:
+      POSTGRES_DB: conectaai
+      POSTGRES_USER: conectaai
+      POSTGRES_PASSWORD: conectaai
+    ports:
+      - "5433:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: conectaai-rabbitmq
+    ports:
+      - "5672:5672"   # AMQP
+      - "15672:15672" # painel web
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
+volumes:
+  db_data:
+  rabbitmq_data:
