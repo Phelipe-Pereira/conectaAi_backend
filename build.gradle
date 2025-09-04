@@ -22,6 +22,7 @@ configurations {
 
 repositories {
     mavenCentral()
+    gradlePluginPortal()
 }
 
 dependencies {
@@ -31,10 +32,18 @@ dependencies {
     implementation 'org.apache.commons:commons-lang3:3.18.0'
 
     // SDKs dos gateways
-    implementation 'com.asaas:api-sdk:1.0.3'
+    implementation('com.asaas:api-sdk:1.0.3') {
+        exclude group: 'org.sonatype.sisu', module: 'sisu-guice'
+        exclude group: 'com.google.inject', module: 'guice'
+    }
     implementation 'com.google.inject:guice:7.0.0'
-    implementation 'com.mercadopago:sdk-java:2.0.0'
-    implementation 'com.stripe:stripe-java:24.0.0'
+    
+    implementation('com.mercadopago:sdk-java:2.0.0') {
+        exclude group: 'org.sonatype.sisu', module: 'sisu-guice'
+    }
+    implementation('com.stripe:stripe-java:24.0.0') {
+        exclude group: 'org.sonatype.sisu', module: 'sisu-guice'
+    }
 
     // Spring Boot
     implementation 'org.springframework.boot:spring-boot-starter-amqp'
