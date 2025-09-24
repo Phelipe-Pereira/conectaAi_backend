@@ -43,6 +43,26 @@ services:
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
 
+  sonarqube:
+    image: sonarqube:10.6-community
+    container_name: conectaai-sonarqube
+    environment:
+      SONAR_ES_BOOTSTRAP_CHECKS_DISABLE: true
+      SONAR_JDBC_URL: jdbc:postgresql://db:5432/conectaai
+      SONAR_JDBC_USERNAME: conectaai
+      SONAR_JDBC_PASSWORD: conectaai
+    ports:
+      - "9000:9000"
+    depends_on:
+      - db
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_extensions:/opt/sonarqube/extensions
+      - sonarqube_logs:/opt/sonarqube/logs
+
 volumes:
   db_data:
   rabbitmq_data:
+  sonarqube_data:
+  sonarqube_extensions:
+  sonarqube_logs:
