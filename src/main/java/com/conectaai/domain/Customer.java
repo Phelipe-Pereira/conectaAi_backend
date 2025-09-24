@@ -11,8 +11,10 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name= "customer")
-@Getter @Setter @NoArgsConstructor
+@Table(name = "customer")
+@Getter 
+@Setter 
+@NoArgsConstructor
 public class Customer {
 
     @Id
@@ -29,8 +31,8 @@ public class Customer {
     private String document;
 
     @NotNull
-    @Column(unique = true)
-    private String external_id;
+    @Column(name = "external_id", unique = true)
+    private String externalId;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

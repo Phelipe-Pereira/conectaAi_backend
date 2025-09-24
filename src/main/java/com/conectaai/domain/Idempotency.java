@@ -10,8 +10,10 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name= "idempotency")
-@Getter @Setter @NoArgsConstructor
+@Table(name = "idempotency")
+@Getter
+@Setter
+@NoArgsConstructor
 public class Idempotency {
 
     @Id

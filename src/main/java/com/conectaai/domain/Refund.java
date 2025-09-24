@@ -12,8 +12,10 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name= "refund")
-@Getter @Setter @NoArgsConstructor
+@Table(name = "refund")
+@Getter
+@Setter
+@NoArgsConstructor
 public class Refund {
 
     @Id

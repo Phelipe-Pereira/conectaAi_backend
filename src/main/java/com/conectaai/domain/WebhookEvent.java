@@ -11,8 +11,10 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name= "Webhook_event")
-@Getter @Setter @NoArgsConstructor
+@Table(name = "Webhook_event")
+@Getter
+@Setter
+@NoArgsConstructor
 public class WebhookEvent {
 
     @Id

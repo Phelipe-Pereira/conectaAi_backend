@@ -15,8 +15,10 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name= "subscription")
-@Getter @Setter @NoArgsConstructor
+@Table(name = "subscription")
+@Getter
+@Setter
+@NoArgsConstructor
 public class Subscription {
 
     @Id
