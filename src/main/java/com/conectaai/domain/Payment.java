@@ -38,15 +38,15 @@ public class Payment {
     @NotNull
     private BigDecimal amount;
 
-    @NotNull
+    @NotNull @Enumerated(EnumType.STRING)
     private Currency currency;
 
-    @NotNull
+    @NotNull @Enumerated(EnumType.STRING)
     private PaymentStatus status;
 
     private LocalDateTime dueDate;
 
-    @NotNull
+    @NotNull @Enumerated(EnumType.STRING)
     private Provider provider;
 
     private String providerReference;

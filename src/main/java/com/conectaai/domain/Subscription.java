@@ -37,10 +37,10 @@ public class Subscription {
     @NotNull
     private BigDecimal amount;
 
-    @NotNull
+    @NotNull @Enumerated(EnumType.STRING)
     private Currency currency;
 
-    @NotNull
+    @NotNull @Enumerated(EnumType.STRING)
     private SubscriptionInterval interval;
 
     @NotNull
@@ -48,10 +48,10 @@ public class Subscription {
 
     private LocalDateTime endAt;
 
-    @NotNull
+    @NotNull @Enumerated(EnumType.STRING)
     private SubscriptionStatus status;
 
-    @NotNull
+    @NotNull @Enumerated(EnumType.STRING)
     private Provider provider;
 
     private String providerReference;

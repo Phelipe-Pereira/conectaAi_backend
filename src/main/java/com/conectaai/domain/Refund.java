@@ -30,7 +30,7 @@ public class Refund {
     @NotNull
     private BigDecimal amount;
 
-    @NotNull
+    @NotNull @Enumerated(EnumType.STRING)
     private RefundStatus status;
 
     private String providerReference;
