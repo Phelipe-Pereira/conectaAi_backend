@@ -24,6 +24,7 @@ public class Refund {
 
     @ManyToOne
     @NotNull
+    @JoinColumn(name = "payment_id", nullable = false)
     private Payment payment;
 
     @Column(precision = 19, scale = 2)

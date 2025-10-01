@@ -39,9 +39,11 @@ public class Customer {
 
     @Email
     @Column(unique = true)
+    @NotNull
     private String email;
 
     @Column(unique = true)
+    @NotNull
     private String document;
 
     @Enumerated(EnumType.STRING)

@@ -16,10 +16,15 @@ import java.time.LocalDateTime;
 
 
 @Entity
-@Table(name = "payment")
 @Getter
 @Setter
 @NoArgsConstructor
+@Table(
+        name = "payment",
+        uniqueConstraints = @UniqueConstraint(
+                name = "uk_payment_provider_ref",
+                columnNames = {"provider", "provider_reference"}
+        ))
 public class Payment {
 
     @Id
@@ -32,6 +37,7 @@ public class Payment {
 
     @ManyToOne
     @NotNull
+    @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
 
     @Column(precision = 19, scale = 2)

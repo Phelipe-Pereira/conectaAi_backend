@@ -15,10 +15,15 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "subscription")
 @Getter
 @Setter
 @NoArgsConstructor
+@Table(
+        name = "subscription",
+        uniqueConstraints = @UniqueConstraint(
+                name = "uk_subscription_provider_ref",
+                columnNames = {"provider", "provider_reference"}
+        ))
 public class Subscription {
 
     @Id
@@ -31,6 +36,7 @@ public class Subscription {
 
     @ManyToOne
     @NotNull
+    @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
 
     @Column(precision = 19, scale = 2)
