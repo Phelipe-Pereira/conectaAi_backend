@@ -43,8 +43,20 @@ public interface WebhookEventRepository extends JpaRepository<WebhookEvent, Long
 
     List<WebhookEvent> findByProcessedAndReceivedAtBefore(Boolean processed, LocalDateTime date);
 
-    @Query("SELECT w FROM WebhookEvent w WHERE w.payload LIKE %:content%")
-    List<WebhookEvent> findByPayloadContaining(@Param("content") String content);
+    @Query(value = "SELECT w FROM WebhookEvent w WHERE w.payload->>:fieldName = :value",nativeQuery = true)
+    List<WebhookEvent> findByFieldInPayload(@Param("fieldName") String fieldName, @Param("value") String value);
+
+    @Query(value = "SELECT * FROM webhook_event WHERE payload->>'customer_id' = :customerId",
+            nativeQuery = true)
+    List<WebhookEvent> findByCustomerIdInPayload(@Param("customerId") String customerId);
+
+    @Query(value = "SELECT * FROM webhook_event WHERE payload->>'payment_id' = :paymentId",
+            nativeQuery = true)
+    List<WebhookEvent> findByPaymentIdInPayload(@Param("paymentId") String paymentId);
+
+    @Query(value = "SELECT * FROM webhook_event WHERE payload->>'external_reference' = :externalRef",
+            nativeQuery = true)
+    List<WebhookEvent> findByExternalReferenceInPayload(@Param("externalRef") String externalRef);
 
     @Modifying
     @Query("UPDATE WebhookEvent w SET w.processed = true WHERE w.id IN :ids")
