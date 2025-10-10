@@ -1,3 +1,5 @@
 databaseChangeLog:
   - include:
       file: classpath:db/changelog/001-init-tables.yml
+  - include:
+      file: classpath:db/changelog/002-migrate-customer-and-sizes.yml
