@@ -1,0 +1,156 @@
+databaseChangeLog:
+  - changeSet:
+      id: 003-create-user-tables
+      author: lipe
+      changes:
+        - createTable:
+            tableName: users
+            columns:
+              - column: { name: id, type: BIGSERIAL, constraints: { primaryKey: true } }
+              - column: { name: username, type: VARCHAR(100), constraints: { nullable: false, unique: true } }
+              - column: { name: email, type: VARCHAR(255), constraints: { nullable: false, unique: true } }
+              - column: { name: password, type: VARCHAR(255), constraints: { nullable: false } }
+              - column: { name: active, type: BOOLEAN, defaultValueBoolean: true, constraints: { nullable: false } }
+              - column: { name: created_at, type: TIMESTAMP WITH TIME ZONE, defaultValueComputed: NOW() }
+              - column: { name: updated_at, type: TIMESTAMP WITH TIME ZONE }
+
+        - createTable:
+            tableName: user_roles
+            columns:
+              - column: { name: id, type: BIGSERIAL, constraints: { primaryKey: true } }
+              - column: { name: user_id, type: BIGINT, constraints: { nullable: false } }
+              - column: { name: role, type: VARCHAR(50), constraints: { nullable: false } }
+              - column: { name: created_at, type: TIMESTAMP WITH TIME ZONE, defaultValueComputed: NOW() }
+
+        - createTable:
+            tableName: user_permissions
+            columns:
+              - column: { name: id, type: BIGSERIAL, constraints: { primaryKey: true } }
+              - column: { name: user_id, type: BIGINT, constraints: { nullable: false } }
+              - column: { name: permission, type: VARCHAR(100), constraints: { nullable: false } }
+              - column: { name: created_at, type: TIMESTAMP WITH TIME ZONE, defaultValueComputed: NOW() }
+
+        - createTable:
+            tableName: user_preferences
+            columns:
+              - column: { name: id, type: BIGSERIAL, constraints: { primaryKey: true } }
+              - column: { name: user_id, type: BIGINT, constraints: { nullable: false } }
+              - column: { name: pref_key, type: VARCHAR(100), constraints: { nullable: false } }
+              - column: { name: pref_value, type: VARCHAR(255), constraints: { nullable: false } }
+              - column: { name: created_at, type: TIMESTAMP WITH TIME ZONE, defaultValueComputed: NOW() }
+
+        - addForeignKeyConstraint:
+            baseTableName: user_roles
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_user_roles_user
+            onDelete: CASCADE
+
+        - addForeignKeyConstraint:
+            baseTableName: user_permissions
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_user_permissions_user
+            onDelete: CASCADE
+
+        - addForeignKeyConstraint:
+            baseTableName: user_preferences
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_user_preferences_user
+            onDelete: CASCADE
+
+        - addUniqueConstraint:
+            tableName: user_roles
+            columnNames: user_id, role
+            constraintName: uk_user_roles_user_role
+
+        - addUniqueConstraint:
+            tableName: user_permissions
+            columnNames: user_id, permission
+            constraintName: uk_user_permissions_user_permission
+
+        - addUniqueConstraint:
+            tableName: user_preferences
+            columnNames: user_id, pref_key
+            constraintName: uk_user_preferences_user_key
+
+        - createIndex:
+            tableName: users
+            indexName: idx_users_username
+            columns:
+              - column:
+                  name: username
+
+        - createIndex:
+            tableName: users
+            indexName: idx_users_email
+            columns:
+              - column:
+                  name: email
+
+        - createIndex:
+            tableName: users
+            indexName: idx_users_active
+            columns:
+              - column:
+                  name: active
+
+        - createIndex:
+            tableName: users
+            indexName: idx_users_created_at
+            columns:
+              - column:
+                  name: created_at
+
+        - createIndex:
+            tableName: user_roles
+            indexName: idx_user_roles_user
+            columns:
+              - column:
+                  name: user_id
+
+        - createIndex:
+            tableName: user_roles
+            indexName: idx_user_roles_role
+            columns:
+              - column:
+                  name: role
+
+        - createIndex:
+            tableName: user_permissions
+            indexName: idx_user_permissions_user
+            columns:
+              - column:
+                  name: user_id
+
+        - createIndex:
+            tableName: user_permissions
+            indexName: idx_user_permissions_permission
+            columns:
+              - column:
+                  name: permission
+
+        - createIndex:
+            tableName: user_preferences
+            indexName: idx_user_preferences_user
+            columns:
+              - column:
+                  name: user_id
+
+        - createIndex:
+            tableName: user_preferences
+            indexName: idx_user_preferences_key
+            columns:
+              - column:
+                  name: pref_key
+
+        - createIndex:
+            tableName: user_preferences
+            indexName: idx_user_preferences_created_at
+            columns:
+              - column:
+                  name: created_at
