@@ -1,7 +1,6 @@
 package com.conectaai.repository;
 
 import com.conectaai.domain.Customer;
-import com.conectaai.enums.DocumentType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,11 +17,13 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
 
     Optional<Customer> findByExternalId(String externalId);
     Optional<Customer> findByEmail(String email);
-    Optional<Customer> findByDocument(String document);
+    Optional<Customer> findByCpf(String cpf);
+    Optional<Customer> findByCnpj(String cnpj);
 
     boolean existsByEmail(String email);
     boolean existsByExternalId(String externalId);
-    boolean existsByDocument(String document);
+    boolean existsByCpf(String cpf);
+    boolean existsByCnpj(String cnpj);
 
     List<Customer> findByFirstNameContainingIgnoreCase(String firstName);
     List<Customer> findByLastNameContainingIgnoreCase(String lastName);
@@ -35,7 +36,6 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
     List<Customer> findByActiveTrue();
     List<Customer> findByActiveFalse();
 
-    List<Customer> findByDocumentType(DocumentType documentType);
     List<Customer> findByCity(String city);
     List<Customer> findByState(String state);
     List<Customer> findByCountry(String country);
@@ -52,9 +52,6 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
     """)
     Page<Customer> searchByNameOrEmail(@Param("term") String term, Pageable pageable);
 
-    @Query("SELECT c FROM Customer c WHERE c.document IS NOT NULL")
-    List<Customer> findCustomersWithDocument();
-
     @Query("""
       SELECT COUNT(c)
       FROM Customer c
@@ -69,12 +66,4 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
         AND LOWER(c.email) LIKE LOWER(CONCAT('%@', :domain))
     """)
     List<Customer> findActiveByEmailDomain(@Param("domain") String domain);
-
-    @Query("""
-      SELECT c FROM Customer c
-      WHERE c.document IS NOT NULL
-        AND c.documentType = :type
-        AND c.active = true
-    """)
-    List<Customer> findActiveByDocumentType(@Param("type") DocumentType type);
 }

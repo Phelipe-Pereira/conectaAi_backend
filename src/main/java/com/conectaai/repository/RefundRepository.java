@@ -19,11 +19,8 @@ import java.util.Optional;
 public interface RefundRepository extends JpaRepository<Refund, Long> {
 
     List<Refund> findByPayment(Payment payment);
-
     List<Refund> findByStatus(RefundStatus refundStatus);
-
     List<Refund> findByPaymentAndStatus(Payment payment, RefundStatus status);
-
     List<Refund> findByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
     List<Refund> findByCreatedAtAfter(LocalDateTime date);
 
