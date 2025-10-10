@@ -1,0 +1,156 @@
+databaseChangeLog:
+  - changeSet:
+      id: 002-migrate-customer-and-sizes
+      author: lipe
+      changes:
+        - addColumn:
+            tableName: customer
+            columns:
+              - column: { name: cpf, type: VARCHAR(11) }
+              - column: { name: cnpj, type: VARCHAR(14) }
+
+        - sql:
+            splitStatements: true
+            endDelimiter: ;
+            sql: |
+              UPDATE customer
+                 SET cpf = regexp_replace(document, '\D', '', 'g')
+               WHERE document_type = 'CPF' AND document IS NOT NULL;
+
+              UPDATE customer
+                 SET cnpj = regexp_replace(document, '\D', '', 'g')
+               WHERE document_type = 'CNPJ' AND document IS NOT NULL;
+
+        - addUniqueConstraint:
+            tableName: customer
+            columnNames: cpf
+            constraintName: uk_customer_cpf
+        - addUniqueConstraint:
+            tableName: customer
+            columnNames: cnpj
+            constraintName: uk_customer_cnpj
+
+        - dropColumn:
+            tableName: customer
+            columnName: document
+        - dropColumn:
+            tableName: customer
+            columnName: document_type
+
+        - modifyDataType:
+            tableName: customer
+            columnName: first_name
+            newDataType: VARCHAR(100)
+        - modifyDataType:
+            tableName: customer
+            columnName: last_name
+            newDataType: VARCHAR(100)
+        - modifyDataType:
+            tableName: customer
+            columnName: email
+            newDataType: VARCHAR(254)
+        - modifyDataType:
+            tableName: customer
+            columnName: phone
+            newDataType: VARCHAR(15)
+        - modifyDataType:
+            tableName: customer
+            columnName: state
+            newDataType: VARCHAR(2)
+        - modifyDataType:
+            tableName: customer
+            columnName: zip_code
+            newDataType: VARCHAR(8)
+        - modifyDataType:
+            tableName: customer
+            columnName: company_name
+            newDataType: VARCHAR(100)
+
+        - modifyDataType:
+            tableName: payment
+            columnName: public_id
+            newDataType: VARCHAR(100)
+        - modifyDataType:
+            tableName: payment
+            columnName: provider_reference
+            newDataType: VARCHAR(100)
+
+        - modifyDataType:
+            tableName: subscription
+            columnName: public_id
+            newDataType: VARCHAR(100)
+        - modifyDataType:
+            tableName: subscription
+            columnName: provider_reference
+            newDataType: VARCHAR(100)
+
+        - modifyDataType:
+            tableName: refund
+            columnName: provider_reference
+            newDataType: VARCHAR(100)
+
+        - modifyDataType:
+            tableName: webhook_event
+            columnName: event_type
+            newDataType: VARCHAR(100)
+
+        - modifyDataType:
+            tableName: idempotency
+            columnName: idempotency_key
+            newDataType: VARCHAR(255)
+        - modifyDataType:
+            tableName: idempotency
+            columnName: request_hash
+            newDataType: VARCHAR(255)
+
+        - createIndex:
+            tableName: customer
+            indexName: idx_customer_active
+            columns: [ { name: active } ]
+        - createIndex:
+            tableName: customer
+            indexName: idx_customer_created_at
+            columns: [ { name: created_at } ]
+
+        - createIndex:
+            tableName: payment
+            indexName: idx_payment_status
+            columns: [ { name: status } ]
+        - createIndex:
+            tableName: payment
+            indexName: idx_payment_customer_id
+            columns: [ { name: customer_id } ]
+        - createIndex:
+            tableName: payment
+            indexName: idx_payment_provider
+            columns: [ { name: provider } ]
+        - createIndex:
+            tableName: payment
+            indexName: idx_payment_created_at
+            columns: [ { name: created_at } ]
+
+        - createIndex:
+            tableName: subscription
+            indexName: idx_subscription_status
+            columns: [ { name: status } ]
+        - createIndex:
+            tableName: subscription
+            indexName: idx_subscription_customer_id
+            columns: [ { name: customer_id } ]
+        - createIndex:
+            tableName: subscription
+            indexName: idx_subscription_provider
+            columns: [ { name: provider } ]
+
+        - createIndex:
+            tableName: webhook_event
+            indexName: idx_webhook_processed
+            columns: [ { name: processed } ]
+        - createIndex:
+            tableName: webhook_event
+            indexName: idx_webhook_received_at
+            columns: [ { name: received_at } ]
+        - createIndex:
+            tableName: webhook_event
+            indexName: idx_webhook_provider
+            columns: [ { name: provider } ]
