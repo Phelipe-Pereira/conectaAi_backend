@@ -36,9 +36,9 @@ public interface PasswordResetTokenRepository extends JpaRepository<PasswordRese
     );
 
     @Modifying
-    @Query("UPDATE PasswordResetToken prt SET prt.usedAt = CURRENT_TIMESTAMP " +
+    @Query("UPDATE PasswordResetToken prt SET prt.usedAt = :now " +
            "WHERE prt.user.id = :userId AND prt.usedAt IS NULL")
-    void revokeAllByUserId(@Param("userId") Long userId);
+    void revokeAllByUserId(@Param("userId") Long userId, @Param("now") Instant now);
 
     @Modifying
     @Query("UPDATE PasswordResetToken prt SET prt.usedAt = :now " +
