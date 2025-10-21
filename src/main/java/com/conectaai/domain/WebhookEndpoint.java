@@ -50,9 +50,11 @@ public class WebhookEndpoint {
     @Column(columnDefinition = "jsonb", nullable = false)
     @JdbcTypeCode(SqlTypes.JSON)
     @NotNull
+    @Builder.Default
     private List<String> enabledEvents = new ArrayList<>();
 
     @Column(nullable = false)
+    @Builder.Default
     private Boolean active = true;
 
     @CreationTimestamp
@@ -64,6 +66,7 @@ public class WebhookEndpoint {
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "webhookEndpoint", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Builder.Default
     private List<WebhookEvent> events = new ArrayList<>();
 
     @PrePersist

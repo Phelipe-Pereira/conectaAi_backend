@@ -56,7 +56,5 @@ public interface PasswordResetTokenRepository extends JpaRepository<PasswordRese
     @Query("DELETE FROM PasswordResetToken prt WHERE prt.usedAt < :cutoffDate")
     void deleteUsedTokensOlderThan(@Param("cutoffDate") Instant cutoffDate);
 
-    @Query("SELECT prt FROM PasswordResetToken prt WHERE prt.user = :user " +
-           "ORDER BY prt.createdAt DESC LIMIT 1")
-    Optional<PasswordResetToken> findLatestByUser(@Param("user") User user);
+    Optional<PasswordResetToken> findFirstByUserOrderByCreatedAtDesc(User user);
 }
