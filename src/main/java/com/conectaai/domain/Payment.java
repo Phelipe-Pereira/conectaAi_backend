@@ -1,27 +1,24 @@
 package com.conectaai.domain;
 
 import com.conectaai.enums.Currency;
-
 import com.conectaai.enums.PaymentStatus;
 import com.conectaai.enums.Provider;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Table(
         name = "payment",
         uniqueConstraints = @UniqueConstraint(

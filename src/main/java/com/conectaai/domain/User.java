@@ -1,10 +1,7 @@
 package com.conectaai.domain;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -16,6 +13,8 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Table(name = "users", indexes = {
         @Index(name = "idx_user_username", columnList = "username"),
         @Index(name = "idx_user_email", columnList = "email"),
@@ -75,5 +74,11 @@ public class User {
                 .map(UserPreference::getValue)
                 .findFirst()
                 .orElse(null);
+    }
+
+    public List<String> getRoleNames() {
+        return roles.stream()
+                .map(UserRole::getRole)
+                .toList();
     }
 }

@@ -4,10 +4,7 @@ import com.conectaai.enums.Provider;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -17,10 +14,13 @@ import java.util.Objects;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Table(name = "webhook_event", indexes = {
         @Index(name = "idx_webhook_processed", columnList = "processed"),
         @Index(name = "idx_webhook_received_at", columnList = "receivedAt"),
-        @Index(name = "idx_webhook_provider", columnList = "provider")
+        @Index(name = "idx_webhook_provider", columnList = "provider"),
+        @Index(name = "idx_webhook_endpoint", columnList = "webhook_endpoint_id")
 })
 public class WebhookEvent {
 
@@ -29,7 +29,13 @@ public class WebhookEvent {
     @Setter(AccessLevel.NONE)
     private Long id;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "webhook_endpoint_id", nullable = false)
     @NotNull
+    private WebhookEndpoint webhookEndpoint;
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
     private Provider provider;
 
     @NotNull

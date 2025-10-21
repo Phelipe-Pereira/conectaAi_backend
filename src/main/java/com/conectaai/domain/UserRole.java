@@ -1,10 +1,7 @@
 package com.conectaai.domain;
 
 import jakarta.persistence.*;
-
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -13,6 +10,8 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Table(name = "user_role", indexes = {
         @Index(name = "idx_user_role_user", columnList = "user_id"),
         @Index(name = "idx_user_role_role", columnList = "role")
