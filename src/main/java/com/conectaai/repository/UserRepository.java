@@ -23,13 +23,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     List<User> findByActive(Boolean active);
 
-    @Query("SELECT DISTINCT u FROM User u JOIN u.roles r WHERE r.role IN :roles")
+    @Query("SELECT u FROM User u WHERE u.id IN (SELECT r.user.id FROM UserRole r WHERE r.role IN :roles)")
     List<User> findByRoles(@Param("roles") List<String> roles);
 
-    @Query("SELECT DISTINCT u FROM User u JOIN u.roles r WHERE u.active = true AND r.role = :role")
+    @Query("SELECT u FROM User u WHERE u.active = true AND u.id IN (SELECT r.user.id FROM UserRole r WHERE r.role = :role)")
     List<User> findActiveByRole(@Param("role") String role);
 
-    @Query("SELECT DISTINCT u FROM User u JOIN u.permissions p WHERE p.permission = :permission")
+    @Query("SELECT u FROM User u WHERE u.id IN (SELECT p.user.id FROM UserPermission p WHERE p.permission = :permission)")
     List<User> findByPermission(@Param("permission") String permission);
 
     List<User> findByCreatedAtAfter(LocalDateTime date);
