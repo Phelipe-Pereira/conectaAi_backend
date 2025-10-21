@@ -27,7 +27,7 @@ import java.util.UUID;
 @Service
 public class AuthService {
     
-    private static final AppLogger logger = AppLogger.getLogger(AuthService.class);
+    private static final AppLogger LOGGER = AppLogger.getLogger(AuthService.class);
     
     private static final String CREDENTIALS_INVALID = "Credenciais inválidas";
     private static final String TOKEN_INVALID = "Token inválido";
@@ -51,11 +51,11 @@ public class AuthService {
         
         if (usernameExists || emailExists) {
             if (usernameExists) {
-                logger.warn("validateUserDoesNotExist", "Tentativa de registro com username já em uso: {}", 
+                LOGGER.warn("validateUserDoesNotExist", "Tentativa de registro com username já em uso: {}", 
                     registerRequest.username());
             }
             if (emailExists) {
-                logger.warn("validateUserDoesNotExist", "Tentativa de registro com email já em uso: {}", 
+                LOGGER.warn("validateUserDoesNotExist", "Tentativa de registro com email já em uso: {}", 
                     registerRequest.email());
             }
             throw new UserAlreadyExistsException("Username ou email já estão em uso");
@@ -118,22 +118,22 @@ public class AuthService {
     private User verifyPassword(String email, String password) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> {
-                    logger.warn("verifyPassword", "Tentativa de login com email não cadastrado: {}", email);
+                    LOGGER.warn("verifyPassword", "Tentativa de login com email não cadastrado: {}", email);
                     return new InvalidCredentialsException(CREDENTIALS_INVALID);
                 });
 
         if (!passwordEncoder.matches(password, user.getPassword())) {
-            logger.warn("verifyPassword", "Tentativa de login com senha incorreta para email: {}", email);
+            LOGGER.warn("verifyPassword", "Tentativa de login com senha incorreta para email: {}", email);
             throw new InvalidCredentialsException(CREDENTIALS_INVALID);
         }
 
-        logger.info("verifyPassword", "Login bem-sucedido para email: {}", email);
+        LOGGER.info("verifyPassword", "Login bem-sucedido para email: {}", email);
         return user;
     }
 
     private void verifyUserIsActive(User user) {
         if (!Boolean.TRUE.equals(user.getActive())) {
-            logger.warn("verifyUserIsActive", "Tentativa de acesso com usuário inativo. UserId: {}", user.getId());
+            LOGGER.warn("verifyUserIsActive", "Tentativa de acesso com usuário inativo. UserId: {}", user.getId());
             throw new UserInactiveException("Usuário inativo");
         }
     }
@@ -150,11 +150,11 @@ public class AuthService {
             String accessToken = jwtService.generateAccessToken(user);
             RefreshToken refreshToken = createRefreshToken(user);
 
-            logger.info("register", "Usuário registrado com sucesso: {}", registerRequest.username());
+            LOGGER.info("register", "Usuário registrado com sucesso: {}", registerRequest.username());
             return buildAuthResponse(user, accessToken, refreshToken.getToken());
             
         } catch (DataIntegrityViolationException e) {
-            logger.warn("register", "Tentativa de registro com username/email duplicado: {} / {}", 
+            LOGGER.warn("register", "Tentativa de registro com username/email duplicado: {} / {}", 
                 registerRequest.username(), registerRequest.email());
             throw new UserAlreadyExistsException("Username ou email já estão em uso");
         }
@@ -207,7 +207,7 @@ public class AuthService {
         var userOptional = userRepository.findByEmail(forgotPasswordRequest.email());
         
         if (userOptional.isEmpty()) {
-            logger.warn("forgotPassword", "Tentativa de recuperação para email não cadastrado: {}", 
+            LOGGER.warn("forgotPassword", "Tentativa de recuperação para email não cadastrado: {}", 
                 forgotPasswordRequest.email());
             return;
         }
@@ -222,7 +222,7 @@ public class AuthService {
                 .build();
 
         passwordResetTokenRepository.save(resetToken);
-        logger.info("forgotPassword", "Token de reset gerado para email: {}", forgotPasswordRequest.email());
+        LOGGER.info("forgotPassword", "Token de reset gerado para email: {}", forgotPasswordRequest.email());
     }
 
     @Transactional
@@ -237,7 +237,7 @@ public class AuthService {
         User user = resetToken.getUser();
         
         if (passwordEncoder.matches(resetPasswordRequest.newPassword(), user.getPassword())) {
-            logger.warn("resetPassword", "Tentativa de reset com senha igual à atual. UserId: {}", user.getId());
+            LOGGER.warn("resetPassword", "Tentativa de reset com senha igual à atual. UserId: {}", user.getId());
             throw new InvalidPasswordException(PASSWORD_CANNOT_BE_SAME);
         }
         
@@ -250,24 +250,24 @@ public class AuthService {
         passwordResetTokenRepository.save(resetToken);
         refreshTokenRepository.revokeAllByUserId(user.getId(), LocalDateTime.now());
         
-        logger.info("resetPassword", "Senha resetada e todos os tokens revogados para userId: {}", user.getId());
+        LOGGER.info("resetPassword", "Senha resetada e todos os tokens revogados para userId: {}", user.getId());
     }
 
     @Transactional
     public void changePassword(ChangePasswordRequestDto changePasswordRequest, Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> {
-                    logger.error("changePassword", "Usuário autenticado não encontrado. UserId: {}", userId);
+                    LOGGER.error("changePassword", "Usuário autenticado não encontrado. UserId: {}", userId);
                     return new UserNotFoundException("Erro ao processar requisição");
                 });
 
         if (!passwordEncoder.matches(changePasswordRequest.currentPassword(), user.getPassword())) {
-            logger.warn("changePassword", "Senha atual incorreta para userId: {}", userId);
+            LOGGER.warn("changePassword", "Senha atual incorreta para userId: {}", userId);
             throw new InvalidPasswordException("Senha atual incorreta");
         }
         
         if (passwordEncoder.matches(changePasswordRequest.newPassword(), user.getPassword())) {
-            logger.warn("changePassword", "Tentativa de alteração para senha igual à atual. UserId: {}", userId);
+            LOGGER.warn("changePassword", "Tentativa de alteração para senha igual à atual. UserId: {}", userId);
             throw new InvalidPasswordException(PASSWORD_CANNOT_BE_SAME);
         }
 
@@ -277,6 +277,6 @@ public class AuthService {
         userRepository.save(user);
         refreshTokenRepository.revokeAllByUserId(userId, LocalDateTime.now());
         
-        logger.info("changePassword", "Senha alterada com sucesso para userId: {}", userId);
+        LOGGER.info("changePassword", "Senha alterada com sucesso para userId: {}", userId);
     }
 }

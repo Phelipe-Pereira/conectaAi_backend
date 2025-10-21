@@ -50,7 +50,8 @@ public interface WebhookEventRepository extends JpaRepository<WebhookEvent, Long
     @Query(value = "SELECT * FROM webhook_event WHERE payload->>'payment_id' = :paymentId", nativeQuery = true)
     List<WebhookEvent> findByPaymentIdInPayload(@Param("paymentId") String paymentId);
 
-    @Query(value = "SELECT * FROM webhook_event WHERE payload->>'external_reference' = :externalRef", nativeQuery = true)
+    @Query(value = "SELECT * FROM webhook_event WHERE payload->>'external_reference' = :externalRef",
+            nativeQuery = true)
     List<WebhookEvent> findByExternalReferenceInPayload(@Param("externalRef") String externalRef);
 
     @Modifying
@@ -61,8 +62,10 @@ public interface WebhookEventRepository extends JpaRepository<WebhookEvent, Long
     @Query("DELETE FROM WebhookEvent w WHERE w.processed = true AND w.receivedAt < :date")
     void deleteProcessedEventsOlderThan(@Param("date") LocalDateTime date);
 
-    @Query("SELECT w FROM WebhookEvent w WHERE w.provider = :provider AND w.eventType = :eventType AND w.payload = :payload ORDER BY w.receivedAt DESC")
-    List<WebhookEvent> findDuplicateEvents(@Param("provider") Provider provider,
-                                           @Param("eventType") String eventType,
-                                           @Param("payload") String payload);
+    @Query("SELECT w FROM WebhookEvent w WHERE w.provider = :provider "
+            + "AND w.eventType = :eventType AND w.payload = :payload ORDER BY w.receivedAt DESC")
+    List<WebhookEvent> findDuplicateEvents(
+            @Param("provider") Provider provider,
+            @Param("eventType") String eventType,
+            @Param("payload") String payload);
 }

@@ -3,7 +3,7 @@ package com.conectaai.utils;
 import org.apache.commons.lang3.StringUtils;
 
 public final class DataNormalizer {
-    private DataNormalizer() {}
+    private DataNormalizer() { }
 
     public static String email(String email) {
         return StringUtils.trimToNull(StringUtils.lowerCase(email));

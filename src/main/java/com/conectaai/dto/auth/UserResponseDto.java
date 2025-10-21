@@ -13,6 +13,6 @@ public record UserResponseDto(
         List<String> roles,
         @JsonProperty("created_at")
         LocalDateTime createdAt
-) {}
+) { }
 
 

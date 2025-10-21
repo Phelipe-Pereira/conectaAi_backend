@@ -5,7 +5,8 @@ import java.util.regex.Pattern;
 public final class UserUtils {
 
     private static final String EMAIL_REGEX = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
-    private static final String PASSWORD_REGEX = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$";
+    private static final String PASSWORD_REGEX =
+            "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$";
     private static final String USERNAME_REGEX = "^[a-zA-Z0-9_]{3,20}$";
     private static final String PHONE_REGEX = "^\\+?[1-9]\\d{1,14}$";
     
@@ -123,7 +124,8 @@ public final class UserUtils {
             return localPart + "@" + domain;
         }
         
-        String masked = localPart.charAt(0) + "*".repeat(localPart.length() - 2) + localPart.charAt(localPart.length() - 1);
+        String masked = localPart.charAt(0) + "*".repeat(localPart.length() - 2)
+                + localPart.charAt(localPart.length() - 1);
         return masked + "@" + domain;
     }
 

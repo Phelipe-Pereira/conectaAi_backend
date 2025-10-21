@@ -28,4 +28,4 @@ public record RegisterRequestDto(
         )
         String password
 
-) {}
+) { }

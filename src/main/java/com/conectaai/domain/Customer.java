@@ -119,7 +119,9 @@ public class Customer {
         this.phone = phone(this.phone);
         this.country = country(this.country);
         this.companyName = name(this.companyName);
-        if (!hasAtLeastOneValidDocument()) throw new IllegalStateException("CPF ou CNPJ inválido ou ausente");
+        if (!hasAtLeastOneValidDocument()) {
+            throw new IllegalStateException("CPF ou CNPJ inválido ou ausente");
+        }
     }
 
     private boolean hasAtLeastOneValidDocument() {
@@ -130,8 +132,12 @@ public class Customer {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         Customer customer = (Customer) o;
         return Objects.equals(id, customer.id);
     }

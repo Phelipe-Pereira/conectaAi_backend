@@ -10,4 +10,4 @@ public record LoginRequestDto(
 
         @NotBlank(message = "Senha é obrigatória")
         String password
-) {}
+) { }

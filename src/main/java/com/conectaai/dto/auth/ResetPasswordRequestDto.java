@@ -17,5 +17,5 @@ public record ResetPasswordRequestDto(
         )
         @JsonProperty("new_password")
         String newPassword
-) {}
+) { }
 

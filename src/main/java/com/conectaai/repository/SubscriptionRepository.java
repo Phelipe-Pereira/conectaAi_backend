@@ -59,13 +59,16 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Long
     Page<Subscription> findByStatus(SubscriptionStatus status, Pageable pageable);
     Page<Subscription> findByProvider(Provider provider, Pageable pageable);
 
-    @Query("SELECT s FROM Subscription s WHERE s.status = com.conectaai.enums.SubscriptionStatus.ACTIVE AND s.endAt BETWEEN :now AND :futureDate")
-    List<Subscription> findActiveSubscriptionsExpiringBetween(@Param("now") LocalDateTime now,
-                                                              @Param("futureDate") LocalDateTime futureDate);
+    @Query("SELECT s FROM Subscription s WHERE s.status = com.conectaai.enums.SubscriptionStatus.ACTIVE "
+            + "AND s.endAt BETWEEN :now AND :futureDate")
+    List<Subscription> findActiveSubscriptionsExpiringBetween(
+            @Param("now") LocalDateTime now,
+            @Param("futureDate") LocalDateTime futureDate);
 
     @Query("SELECT SUM(s.amount) FROM Subscription s WHERE s.status = :status")
     BigDecimal sumAmountByStatus(@Param("status") SubscriptionStatus status);
 
-    @Query("SELECT s FROM Subscription s WHERE s.customer.id = :customerId AND s.status = com.conectaai.enums.SubscriptionStatus.ACTIVE")
+    @Query("SELECT s FROM Subscription s WHERE s.customer.id = :customerId "
+            + "AND s.status = com.conectaai.enums.SubscriptionStatus.ACTIVE")
     List<Subscription> findActiveSubscriptionsByCustomerId(@Param("customerId") Long customerId);
 }

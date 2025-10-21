@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public final class SubscriptionUtils {
-    private SubscriptionUtils() {}
+    private SubscriptionUtils() { }
 
     public static boolean isValidAmount(BigDecimal amount) {
         return amount != null && amount.scale() <= 2 && amount.compareTo(BigDecimal.ZERO) > 0;
@@ -27,8 +27,12 @@ public final class SubscriptionUtils {
     }
 
     public static boolean isValidDates(LocalDateTime startAt, LocalDateTime endAt) {
-        if (startAt == null) return false;
-        if (endAt == null) return true;
+        if (startAt == null) {
+            return false;
+        }
+        if (endAt == null) {
+            return true;
+        }
         return !endAt.isBefore(startAt);
     }
 }
