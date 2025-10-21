@@ -1,6 +1,10 @@
 CURSOR_TASK.md
 CURSOR_TASK_TWO.md
+cursor_task_three.md
 HELP.md
+WEBHOOK_ARCHITECTURE.md
+YAML_CHANGELOG.md
+conectaai-public-v1-api.yaml
 .gradle
 build/
 !gradle/wrapper/gradle-wrapper.jar
