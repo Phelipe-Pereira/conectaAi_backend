@@ -3,3 +3,11 @@ databaseChangeLog:
       file: classpath:db/changelog/001-init-tables.yml
   - include:
       file: classpath:db/changelog/002-migrate-customer-and-sizes.yml
+  - include:
+      file: classpath:db/changelog/003-create-user-tables.yml
+  - include:
+      file: classpath:db/changelog/004-create-webhook-tables.yml
+  - include:
+      file: classpath:db/changelog/005-create-refresh-token-table.yml
+  - include:
+      file: classpath:db/changelog/006-create-password-reset-token-table.yml

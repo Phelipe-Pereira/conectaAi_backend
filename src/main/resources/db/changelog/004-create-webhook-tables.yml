@@ -1,0 +1,107 @@
+databaseChangeLog:
+  - changeSet:
+      id: 004-create-webhook-endpoint-table
+      author: conectaai
+      changes:
+        - createTable:
+            tableName: webhook_endpoint
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: url
+                  type: VARCHAR(500)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: secret
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: enabled_events
+                  type: JSONB
+                  constraints:
+                    nullable: false
+              - column:
+                  name: active
+                  type: BOOLEAN
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+
+        - addForeignKeyConstraint:
+            baseTableName: webhook_endpoint
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_webhook_endpoint_user
+            onDelete: CASCADE
+
+        - createIndex:
+            tableName: webhook_endpoint
+            indexName: idx_webhook_endpoint_active
+            columns:
+              - column:
+                  name: active
+
+        - createIndex:
+            tableName: webhook_endpoint
+            indexName: idx_webhook_endpoint_user
+            columns:
+              - column:
+                  name: user_id
+
+        - createIndex:
+            tableName: webhook_endpoint
+            indexName: idx_webhook_endpoint_created_at
+            columns:
+              - column:
+                  name: created_at
+
+  - changeSet:
+      id: 004-update-webhook-event-table
+      author: conectaai
+      changes:
+        - addColumn:
+            tableName: webhook_event
+            columns:
+              - column:
+                  name: webhook_endpoint_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+
+        - addForeignKeyConstraint:
+            baseTableName: webhook_event
+            baseColumnNames: webhook_endpoint_id
+            referencedTableName: webhook_endpoint
+            referencedColumnNames: id
+            constraintName: fk_webhook_event_endpoint
+            onDelete: CASCADE
+
+        - createIndex:
+            tableName: webhook_event
+            indexName: idx_webhook_endpoint
+            columns:
+              - column:
+                  name: webhook_endpoint_id
+
