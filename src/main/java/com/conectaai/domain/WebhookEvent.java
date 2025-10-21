@@ -48,6 +48,7 @@ public class WebhookEvent {
     private String payload;
 
     @Column(nullable = false)
+    @Builder.Default
     private Boolean processed = false;
 
     @CreationTimestamp

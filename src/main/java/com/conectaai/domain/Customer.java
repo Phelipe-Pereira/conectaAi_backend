@@ -80,6 +80,7 @@ public class Customer {
 
     @Column(length = 2)
     @Size(max = 2)
+    @Builder.Default
     private String country = "BR";
 
     @Column(name = "birth_date")
@@ -90,6 +91,7 @@ public class Customer {
     private String companyName;
 
     @Column(nullable = false)
+    @Builder.Default
     private Boolean active = true;
 
     @CreationTimestamp
