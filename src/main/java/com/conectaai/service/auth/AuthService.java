@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.UUID;
@@ -32,6 +31,8 @@ public class AuthService {
     private static final String CREDENTIALS_INVALID = "Credenciais inválidas";
     private static final String TOKEN_INVALID = "Token inválido";
     private static final String PASSWORD_CANNOT_BE_SAME = "A nova senha não pode ser igual à senha atual";
+    private static final String METHOD_VERIFY_PASSWORD = "verifyPassword";
+    private static final String METHOD_CHANGE_PASSWORD = "changePassword";
     
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
@@ -118,16 +119,16 @@ public class AuthService {
     private User verifyPassword(String email, String password) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> {
-                    LOGGER.warn("verifyPassword", "Tentativa de login com email não cadastrado: {}", email);
+                    LOGGER.warn(METHOD_VERIFY_PASSWORD, "Tentativa de login com email não cadastrado: {}", email);
                     return new InvalidCredentialsException(CREDENTIALS_INVALID);
                 });
 
         if (!passwordEncoder.matches(password, user.getPassword())) {
-            LOGGER.warn("verifyPassword", "Tentativa de login com senha incorreta para email: {}", email);
+            LOGGER.warn(METHOD_VERIFY_PASSWORD, "Tentativa de login com senha incorreta para email: {}", email);
             throw new InvalidCredentialsException(CREDENTIALS_INVALID);
         }
 
-        LOGGER.info("verifyPassword", "Login bem-sucedido para email: {}", email);
+        LOGGER.info(METHOD_VERIFY_PASSWORD, "Login bem-sucedido para email: {}", email);
         return user;
     }
 
@@ -165,7 +166,7 @@ public class AuthService {
         User user = verifyPassword(loginRequest.email(), loginRequest.password());
         verifyUserIsActive(user);
 
-        refreshTokenRepository.revokeAllByUserId(user.getId(), LocalDateTime.now());
+        refreshTokenRepository.revokeAllByUserId(user.getId(), Instant.now());
 
         String accessToken = jwtService.generateAccessToken(user);
         RefreshToken refreshToken = createRefreshToken(user);
@@ -185,7 +186,7 @@ public class AuthService {
         User user = refreshToken.getUser();
         verifyUserIsActive(user);
 
-        refreshTokenRepository.revokeAllByUserId(user.getId(), LocalDateTime.now());
+        refreshTokenRepository.revokeAllByUserId(user.getId(), Instant.now());
 
         String newAccessToken = jwtService.generateAccessToken(user);
         RefreshToken newRefreshToken = createRefreshToken(user);
@@ -248,7 +249,7 @@ public class AuthService {
 
         userRepository.save(user);
         passwordResetTokenRepository.save(resetToken);
-        refreshTokenRepository.revokeAllByUserId(user.getId(), LocalDateTime.now());
+        refreshTokenRepository.revokeAllByUserId(user.getId(), Instant.now());
         
         LOGGER.info("resetPassword", "Senha resetada e todos os tokens revogados para userId: {}", user.getId());
     }
@@ -257,17 +258,17 @@ public class AuthService {
     public void changePassword(ChangePasswordRequestDto changePasswordRequest, Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> {
-                    LOGGER.error("changePassword", "Usuário autenticado não encontrado. UserId: {}", userId);
+                    LOGGER.error(METHOD_CHANGE_PASSWORD, "Usuário autenticado não encontrado. UserId: {}", userId);
                     return new UserNotFoundException("Erro ao processar requisição");
                 });
 
         if (!passwordEncoder.matches(changePasswordRequest.currentPassword(), user.getPassword())) {
-            LOGGER.warn("changePassword", "Senha atual incorreta para userId: {}", userId);
+            LOGGER.warn(METHOD_CHANGE_PASSWORD, "Senha atual incorreta para userId: {}", userId);
             throw new InvalidPasswordException("Senha atual incorreta");
         }
         
         if (passwordEncoder.matches(changePasswordRequest.newPassword(), user.getPassword())) {
-            LOGGER.warn("changePassword", "Tentativa de alteração para senha igual à atual. UserId: {}", userId);
+            LOGGER.warn(METHOD_CHANGE_PASSWORD, "Tentativa de alteração para senha igual à atual. UserId: {}", userId);
             throw new InvalidPasswordException(PASSWORD_CANNOT_BE_SAME);
         }
 
@@ -275,8 +276,8 @@ public class AuthService {
         user.setPassword(hashedPassword);
 
         userRepository.save(user);
-        refreshTokenRepository.revokeAllByUserId(userId, LocalDateTime.now());
+        refreshTokenRepository.revokeAllByUserId(userId, Instant.now());
         
-        LOGGER.info("changePassword", "Senha alterada com sucesso para userId: {}", userId);
+        LOGGER.info(METHOD_CHANGE_PASSWORD, "Senha alterada com sucesso para userId: {}", userId);
     }
 }

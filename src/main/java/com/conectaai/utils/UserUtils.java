@@ -7,7 +7,7 @@ public final class UserUtils {
     private static final String EMAIL_REGEX = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
     private static final String PASSWORD_REGEX =
             "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$";
-    private static final String USERNAME_REGEX = "^[a-zA-Z0-9_]{3,20}$";
+    private static final String USERNAME_REGEX = "^\\w{3,20}$";
     private static final String PHONE_REGEX = "^\\+?[1-9]\\d{1,14}$";
     
     private static final Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_REGEX);

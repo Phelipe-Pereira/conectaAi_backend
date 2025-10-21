@@ -21,11 +21,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     List<User> findByActive(Boolean active);
 
-    // Métodos simplificados - implementar lógica no service se necessário
-    // List<User> findByRoles(@Param("roles") List<String> roles);
-    // List<User> findActiveByRole(@Param("role") String role);
-    // List<User> findByPermission(@Param("permission") String permission);
-
     List<User> findByCreatedAtAfter(LocalDateTime date);
     List<User> findByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
     List<User> findByUpdatedAtAfter(LocalDateTime date);
