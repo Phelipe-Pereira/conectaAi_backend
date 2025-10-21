@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.UUID;
@@ -160,7 +161,7 @@ public class AuthService {
         User user = verifyPassword(loginRequest.email(), loginRequest.password());
         verifyUserIsActive(user);
 
-        refreshTokenRepository.revokeAllByUserId(user.getId());
+        refreshTokenRepository.revokeAllByUserId(user.getId(), LocalDateTime.now());
 
         String accessToken = jwtService.generateAccessToken(user);
         RefreshToken refreshToken = createRefreshToken(user);
@@ -180,7 +181,7 @@ public class AuthService {
         User user = refreshToken.getUser();
         verifyUserIsActive(user);
 
-        refreshTokenRepository.revokeAllByUserId(user.getId());
+        refreshTokenRepository.revokeAllByUserId(user.getId(), LocalDateTime.now());
 
         String newAccessToken = jwtService.generateAccessToken(user);
         RefreshToken newRefreshToken = createRefreshToken(user);
@@ -208,7 +209,7 @@ public class AuthService {
         }
         
         User user = userOptional.get();
-        passwordResetTokenRepository.revokeAllByUserId(user.getId());
+        passwordResetTokenRepository.revokeAllByUserId(user.getId(), Instant.now());
 
         PasswordResetToken resetToken = PasswordResetToken.builder()
                 .token(UUID.randomUUID().toString())
@@ -243,7 +244,7 @@ public class AuthService {
 
         userRepository.save(user);
         passwordResetTokenRepository.save(resetToken);
-        refreshTokenRepository.revokeAllByUserId(user.getId());
+        refreshTokenRepository.revokeAllByUserId(user.getId(), LocalDateTime.now());
         
         logger.info("resetPassword", "Senha resetada e todos os tokens revogados para userId: {}", user.getId());
     }
@@ -270,7 +271,7 @@ public class AuthService {
         user.setPassword(hashedPassword);
 
         userRepository.save(user);
-        refreshTokenRepository.revokeAllByUserId(userId);
+        refreshTokenRepository.revokeAllByUserId(userId, LocalDateTime.now());
         
         logger.info("changePassword", "Senha alterada com sucesso para userId: {}", userId);
     }
