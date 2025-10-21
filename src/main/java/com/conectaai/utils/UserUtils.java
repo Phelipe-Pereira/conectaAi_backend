@@ -2,7 +2,7 @@ package com.conectaai.utils;
 
 import java.util.regex.Pattern;
 
-public class UserUtils {
+public final class UserUtils {
 
     private static final String EMAIL_REGEX = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
     private static final String PASSWORD_REGEX = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$";
@@ -13,6 +13,10 @@ public class UserUtils {
     private static final Pattern PASSWORD_PATTERN = Pattern.compile(PASSWORD_REGEX);
     private static final Pattern USERNAME_PATTERN = Pattern.compile(USERNAME_REGEX);
     private static final Pattern PHONE_PATTERN = Pattern.compile(PHONE_REGEX);
+    
+    private UserUtils() {
+        throw new UnsupportedOperationException("Utility class cannot be instantiated");
+    }
 
     public static boolean isValidEmail(String email) {
         if (email == null || email.trim().isEmpty()) {

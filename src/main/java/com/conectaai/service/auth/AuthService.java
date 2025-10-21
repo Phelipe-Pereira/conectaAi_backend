@@ -29,6 +29,10 @@ public class AuthService {
     
     private static final AppLogger logger = AppLogger.getLogger(AuthService.class);
     
+    private static final String CREDENTIALS_INVALID = "Credenciais inválidas";
+    private static final String TOKEN_INVALID = "Token inválido";
+    private static final String PASSWORD_CANNOT_BE_SAME = "A nova senha não pode ser igual à senha atual";
+    
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
@@ -115,12 +119,12 @@ public class AuthService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> {
                     logger.warn("verifyPassword", "Tentativa de login com email não cadastrado: {}", email);
-                    return new InvalidCredentialsException("Credenciais inválidas");
+                    return new InvalidCredentialsException(CREDENTIALS_INVALID);
                 });
 
         if (!passwordEncoder.matches(password, user.getPassword())) {
             logger.warn("verifyPassword", "Tentativa de login com senha incorreta para email: {}", email);
-            throw new InvalidCredentialsException("Credenciais inválidas");
+            throw new InvalidCredentialsException(CREDENTIALS_INVALID);
         }
 
         logger.info("verifyPassword", "Login bem-sucedido para email: {}", email);
@@ -172,7 +176,7 @@ public class AuthService {
     @Transactional
     public AuthResponseDto refreshToken(RefreshTokenRequestDto refreshTokenRequest) {
         RefreshToken refreshToken = refreshTokenRepository.findByToken(refreshTokenRequest.refreshToken())
-                .orElseThrow(() -> new InvalidRefreshTokenException("Token inválido"));
+                .orElseThrow(() -> new InvalidRefreshTokenException(TOKEN_INVALID));
 
         if (!refreshToken.isValid()) {
             throw new InvalidRefreshTokenException("Token expirado ou revogado");
@@ -192,7 +196,7 @@ public class AuthService {
     @Transactional
     public void logout(String refreshTokenValue) {
         RefreshToken refreshToken = refreshTokenRepository.findByToken(refreshTokenValue)
-                .orElseThrow(() -> new InvalidRefreshTokenException("Token inválido"));
+                .orElseThrow(() -> new InvalidRefreshTokenException(TOKEN_INVALID));
 
         refreshToken.revoke();
         refreshTokenRepository.save(refreshToken);
@@ -224,7 +228,7 @@ public class AuthService {
     @Transactional
     public void resetPassword(ResetPasswordRequestDto resetPasswordRequest) {
         PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(resetPasswordRequest.token())
-                .orElseThrow(() -> new InvalidResetTokenException("Token inválido"));
+                .orElseThrow(() -> new InvalidResetTokenException(TOKEN_INVALID));
 
         if (!resetToken.isValid()) {
             throw new InvalidResetTokenException("Token expirado ou já utilizado");
@@ -234,7 +238,7 @@ public class AuthService {
         
         if (passwordEncoder.matches(resetPasswordRequest.newPassword(), user.getPassword())) {
             logger.warn("resetPassword", "Tentativa de reset com senha igual à atual. UserId: {}", user.getId());
-            throw new InvalidPasswordException("A nova senha não pode ser igual à senha atual");
+            throw new InvalidPasswordException(PASSWORD_CANNOT_BE_SAME);
         }
         
         String hashedPassword = passwordEncoder.encode(resetPasswordRequest.newPassword());
@@ -264,7 +268,7 @@ public class AuthService {
         
         if (passwordEncoder.matches(changePasswordRequest.newPassword(), user.getPassword())) {
             logger.warn("changePassword", "Tentativa de alteração para senha igual à atual. UserId: {}", userId);
-            throw new InvalidPasswordException("A nova senha não pode ser igual à senha atual");
+            throw new InvalidPasswordException(PASSWORD_CANNOT_BE_SAME);
         }
 
         String hashedPassword = passwordEncoder.encode(changePasswordRequest.newPassword());

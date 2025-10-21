@@ -3,7 +3,9 @@ package com.conectaai.logger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AppLogger {
+public final class AppLogger {
+    
+    private static final String LOG_FORMAT = "{}.{} >> {}";
     
     private final Logger log;
     private final String className;
@@ -18,39 +20,34 @@ public class AppLogger {
     }
     
     public void info(String methodName, String message) {
-        log.info("{}.{} >> {}", className, methodName, message);
+        log.info(LOG_FORMAT, className, methodName, message);
     }
     
     public void info(String methodName, String message, Object... args) {
-        log.info("{}.{} >> " + message, prependArgs(className, methodName, args));
+        String formattedMessage = String.format(message, args);
+        log.info(LOG_FORMAT, className, methodName, formattedMessage);
     }
     
     public void warn(String methodName, String message) {
-        log.warn("{}.{} >> {}", className, methodName, message);
+        log.warn(LOG_FORMAT, className, methodName, message);
     }
     
     public void warn(String methodName, String message, Object... args) {
-        log.warn("{}.{} >> " + message, prependArgs(className, methodName, args));
+        String formattedMessage = String.format(message, args);
+        log.warn(LOG_FORMAT, className, methodName, formattedMessage);
     }
     
     public void error(String methodName, String message) {
-        log.error("{}.{} >> {}", className, methodName, message);
+        log.error(LOG_FORMAT, className, methodName, message);
     }
     
     public void error(String methodName, String message, Throwable throwable) {
-        log.error("{}.{} >> {}", className, methodName, message, throwable);
+        log.error(LOG_FORMAT, className, methodName, message, throwable);
     }
     
     public void error(String methodName, String message, Object... args) {
-        log.error("{}.{} >> " + message, prependArgs(className, methodName, args));
-    }
-    
-    private Object[] prependArgs(String className, String methodName, Object... args) {
-        Object[] newArgs = new Object[args.length + 2];
-        newArgs[0] = className;
-        newArgs[1] = methodName;
-        System.arraycopy(args, 0, newArgs, 2, args.length);
-        return newArgs;
+        String formattedMessage = String.format(message, args);
+        log.error(LOG_FORMAT, className, methodName, formattedMessage);
     }
 }
 
