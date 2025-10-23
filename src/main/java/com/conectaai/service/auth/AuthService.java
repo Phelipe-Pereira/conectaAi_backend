@@ -196,11 +196,11 @@ public class AuthService {
 
     @Transactional
     public void logout(String refreshTokenValue) {
-        RefreshToken refreshToken = refreshTokenRepository.findByToken(refreshTokenValue)
-                .orElseThrow(() -> new InvalidRefreshTokenException(TOKEN_INVALID));
-
-        refreshToken.revoke();
-        refreshTokenRepository.save(refreshToken);
+        refreshTokenRepository.findByToken(refreshTokenValue)
+                .ifPresent(refreshToken -> {
+                    refreshToken.revoke();
+                    refreshTokenRepository.save(refreshToken);
+                });
     }
 
     @Transactional
