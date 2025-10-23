@@ -27,6 +27,7 @@ public class JwtService {
         Date expiration = new Date(now.getTime() + accessTokenExpiration);
         return Jwts.builder()
                 .subject(user.getId().toString())
+                .claim("user_id", user.getId())
                 .claim("email", user.getEmail())
                 .claim("roles", user.getRoleNames())
                 .issuedAt(now)
