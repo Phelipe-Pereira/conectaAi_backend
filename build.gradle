@@ -43,7 +43,7 @@ sonar {
         property 'sonar.projectKey', 'conectaai-gateway'
         property 'sonar.projectName', 'ConectaAI Gateway'
         property 'sonar.host.url', 'http://conectaai-sonarqube:9000'
-        property 'sonar.token', 'sqp_2fbce6833e93e06b7d20362f2844bf920c2c793b'
+        property 'sonar.token', 'sqa_533e00c9ca65a8efc56aae2270c5f058009e5be5'
         property 'sonar.sources', 'src/main/java'
         property 'sonar.tests', 'src/test/java'
         property 'sonar.java.coveragePlugin', 'jacoco'

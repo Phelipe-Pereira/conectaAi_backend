@@ -11,3 +11,5 @@ databaseChangeLog:
       file: classpath:db/changelog/005-create-refresh-token-table.yml
   - include:
       file: classpath:db/changelog/006-create-password-reset-token-table.yml
+  - include:
+      file: classpath:db/changelog/007-add-user-id-to-customer.yml

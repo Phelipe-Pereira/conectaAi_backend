@@ -10,21 +10,20 @@ services:
       ASAAS_TOKEN: ${ASAAS_TOKEN}
       STRIPE_SECRET: ${STRIPE_SECRET}
       MP_ACCESS_TOKEN: ${MP_ACCESS_TOKEN}
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/conectaai
+      SPRING_DATASOURCE_URL: jdbc:postgresql://app-db:5432/conectaai
       SPRING_DATASOURCE_USERNAME: conectaai
       SPRING_DATASOURCE_PASSWORD: conectaai
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_PORT: 5672
       SPRING_RABBITMQ_USERNAME: guest
       SPRING_RABBITMQ_PASSWORD: guest
-
     depends_on:
-      - db
+      - app-db
       - rabbitmq
 
-  db:
+  app-db:
     image: postgres:15
-    container_name: conectaai-postgres
+    container_name: conectaai-postgres-app
     environment:
       POSTGRES_DB: conectaai
       POSTGRES_USER: conectaai
@@ -32,37 +31,52 @@ services:
     ports:
       - "5433:5432"
     volumes:
-      - db_data:/var/lib/postgresql/data
+      - app_db_data:/var/lib/postgresql/data
 
   rabbitmq:
     image: rabbitmq:3-management
     container_name: conectaai-rabbitmq
     ports:
-      - "5672:5672"   # AMQP
-      - "15672:15672" # painel web
+      - "5672:5672"    # AMQP
+      - "15672:15672"  # painel web
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
+
+  sonar-db:
+    image: postgres:15
+    container_name: conectaai-postgres-sonar
+    environment:
+      POSTGRES_DB: sonar
+      POSTGRES_USER: sonar
+      POSTGRES_PASSWORD: sonar
+    ports:
+      - "5434:5432"
+    volumes:
+      - sonar_db_data:/var/lib/postgresql/data
 
   sonarqube:
     image: sonarqube:10.6-community
     container_name: conectaai-sonarqube
     environment:
-      SONAR_ES_BOOTSTRAP_CHECKS_DISABLE: true
-      SONAR_JDBC_URL: jdbc:postgresql://db:5432/conectaai
-      SONAR_JDBC_USERNAME: conectaai
-      SONAR_JDBC_PASSWORD: conectaai
+      SONAR_ES_BOOTSTRAP_CHECKS_DISABLE: "true"
+      SONAR_JDBC_URL: jdbc:postgresql://sonar-db:5432/sonar
+      SONAR_JDBC_USERNAME: sonar
+      SONAR_JDBC_PASSWORD: sonar
+      SONAR_ES_JAVAOPTS: -Xms512m -Xmx512m
+      SONAR_WEB_JAVAOPTS: -Xms512m -Xmx1024m
     ports:
       - "9000:9000"
     depends_on:
-      - db
+      - sonar-db
     volumes:
       - sonarqube_data:/opt/sonarqube/data
       - sonarqube_extensions:/opt/sonarqube/extensions
       - sonarqube_logs:/opt/sonarqube/logs
 
 volumes:
-  db_data:
+  app_db_data:
   rabbitmq_data:
+  sonar_db_data:
   sonarqube_data:
   sonarqube_extensions:
   sonarqube_logs:

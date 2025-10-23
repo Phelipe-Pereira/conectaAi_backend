@@ -56,7 +56,7 @@ databaseChangeLog:
         - modifyDataType:
             tableName: customer
             columnName: state
-            newDataType: VARCHAR(2)
+            newDataType: VARCHAR(3)
         - modifyDataType:
             tableName: customer
             columnName: zip_code
@@ -106,51 +106,75 @@ databaseChangeLog:
         - createIndex:
             tableName: customer
             indexName: idx_customer_active
-            columns: [ { name: active } ]
+            columns:
+              - column:
+                  name: active
         - createIndex:
             tableName: customer
             indexName: idx_customer_created_at
-            columns: [ { name: created_at } ]
+            columns:
+              - column:
+                  name: created_at
 
         - createIndex:
             tableName: payment
             indexName: idx_payment_status
-            columns: [ { name: status } ]
+            columns:
+              - column:
+                  name: status
         - createIndex:
             tableName: payment
             indexName: idx_payment_customer_id
-            columns: [ { name: customer_id } ]
+            columns:
+              - column:
+                  name: customer_id
         - createIndex:
             tableName: payment
             indexName: idx_payment_provider
-            columns: [ { name: provider } ]
+            columns:
+              - column:
+                  name: provider
         - createIndex:
             tableName: payment
             indexName: idx_payment_created_at
-            columns: [ { name: created_at } ]
+            columns:
+              - column:
+                  name: created_at
 
         - createIndex:
             tableName: subscription
             indexName: idx_subscription_status
-            columns: [ { name: status } ]
+            columns:
+              - column:
+                  name: status
         - createIndex:
             tableName: subscription
             indexName: idx_subscription_customer_id
-            columns: [ { name: customer_id } ]
+            columns:
+              - column:
+                  name: customer_id
         - createIndex:
             tableName: subscription
             indexName: idx_subscription_provider
-            columns: [ { name: provider } ]
+            columns:
+              - column:
+                  name: provider
 
         - createIndex:
             tableName: webhook_event
             indexName: idx_webhook_processed
-            columns: [ { name: processed } ]
+            columns:
+              - column:
+                  name: processed
         - createIndex:
             tableName: webhook_event
             indexName: idx_webhook_received_at
-            columns: [ { name: received_at } ]
+            columns:
+              - column:
+                  name: received_at
         - createIndex:
             tableName: webhook_event
             indexName: idx_webhook_provider
-            columns: [ { name: provider } ]
+            columns:
+              - column:
+                  name: provider

@@ -280,4 +280,18 @@ public class AuthService {
         
         LOGGER.info(METHOD_CHANGE_PASSWORD, "Senha alterada com sucesso para userId: {}", userId);
     }
+
+    public UserResponseDto getUserById(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));
+
+        return new UserResponseDto(
+                user.getId().toString(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getActive(),
+                user.getRoleNames(),
+                user.getCreatedAt()
+        );
+    }
 }
