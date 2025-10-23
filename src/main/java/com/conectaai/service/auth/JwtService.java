@@ -25,11 +25,19 @@ public class JwtService {
     public String generateAccessToken(User user) {
         Date now = new Date();
         Date expiration = new Date(now.getTime() + accessTokenExpiration);
+        
+        // Extrair roles de forma segura para evitar LazyInitializationException
+        List<String> roleNames = user.getRoles() != null 
+                ? user.getRoles().stream()
+                    .map(role -> role.getRole())
+                    .toList()
+                : List.of();
+        
         return Jwts.builder()
                 .subject(user.getId().toString())
                 .claim("user_id", user.getId())
                 .claim("email", user.getEmail())
-                .claim("roles", user.getRoleNames())
+                .claim("roles", roleNames)
                 .issuedAt(now)
                 .expiration(expiration)
                 .signWith(getSigningKey())

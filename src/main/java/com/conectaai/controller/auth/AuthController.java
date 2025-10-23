@@ -19,6 +19,15 @@ public class AuthController {
     private static final AppLogger LOGGER = AppLogger.getLogger(AuthController.class);
     private final AuthService authService;
 
+    private Long toUserId(org.springframework.security.core.userdetails.User principal) {
+        try {
+            return Long.valueOf(principal.getUsername());
+        } catch (NumberFormatException e) {
+            LOGGER.error("toUserId", "Erro ao converter username para userId: %s", principal.getUsername());
+            throw new org.springframework.security.access.AccessDeniedException("Principal inválido");
+        }
+    }
+
     @PostMapping("/register")
     public ResponseEntity<AuthResponseDto> register(@Valid @RequestBody RegisterRequestDto request) {
         LOGGER.info("register", "Iniciando registro para email: %s", request.email());
@@ -37,7 +46,7 @@ public class AuthController {
 
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(@AuthenticationPrincipal User principal) {
-        Long userId = Long.valueOf(principal.getUsername());
+        Long userId = toUserId(principal);
         LOGGER.info("logout", "Logout solicitado para userId: %s", userId);
         authService.logout(userId);
         return ResponseEntity.noContent().build();
@@ -69,7 +78,7 @@ public class AuthController {
     @PutMapping("/change-password")
     public ResponseEntity<Void> changePassword(@AuthenticationPrincipal User principal,
                                                @Valid @RequestBody ChangePasswordRequestDto request) {
-        Long userId = Long.valueOf(principal.getUsername());
+        Long userId = toUserId(principal);
         LOGGER.info("changePassword", "Alteração de senha solicitada para userId: %s", userId);
         authService.changePassword(request, userId);
         return ResponseEntity.ok().build();
@@ -77,7 +86,7 @@ public class AuthController {
 
     @GetMapping("/me")
     public ResponseEntity<UserResponseDto> getCurrentUser(@AuthenticationPrincipal User principal) {
-        Long userId = Long.valueOf(principal.getUsername());
+        Long userId = toUserId(principal);
         LOGGER.info("getCurrentUser", "Consultando informações para userId: %s", userId);
         UserResponseDto userResponse = authService.getUserById(userId);
         return ResponseEntity.ok(userResponse);
