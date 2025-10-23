@@ -1,0 +1,48 @@
+### ============================================
+### CONECTAAI GATEWAY API - LOGIN TEST
+### ============================================
+
+### 1. Login User
+POST http://localhost:8080/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "phelipe.pereira0811@gmail.com",
+  "password": "Lipe@0811"
+}
+
+> {%
+  // Extract access_token from response
+  client.global.set("access_token", response.body.access_token);
+  client.global.set("refresh_token", response.body.refresh_token);
+  client.log("✅ Login successful!");
+  client.log("Access Token: " + response.body.access_token);
+  client.log("Refresh Token: " + response.body.refresh_token);
+%}
+
+### 2. Refresh Token
+POST http://localhost:8080/api/v1/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "{{refresh_token}}"
+}
+
+> {%
+  // Extract new access_token and refresh_token from response
+  client.global.set("access_token", response.body.access_token);
+  client.global.set("refresh_token", response.body.refresh_token);
+  client.log("✅ Token refreshed successfully!");
+  client.log("New Access Token: " + response.body.access_token);
+  client.log("New Refresh Token: " + response.body.refresh_token);
+%}
+
+### 3. Logout User
+POST http://localhost:8080/api/v1/auth/logout
+Authorization: Bearer {{access_token}}
+
+> {%
+  client.log("✅ Logout successful!");
+  client.global.clear("access_token");
+  client.global.clear("refresh_token");
+%}

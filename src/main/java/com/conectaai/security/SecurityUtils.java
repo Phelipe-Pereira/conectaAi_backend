@@ -28,7 +28,10 @@ public final class SecurityUtils {
 
     public static Long getCurrentUserId() {
         User user = getCurrentUser();
-        return user != null ? user.getId() : null;
+        if (user == null) {
+            throw new IllegalStateException("Usuário não autenticado");
+        }
+        return user.getId();
     }
 }
 

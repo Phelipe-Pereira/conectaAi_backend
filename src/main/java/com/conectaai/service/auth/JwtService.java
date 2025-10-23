@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class JwtService {
@@ -24,7 +25,6 @@ public class JwtService {
     public String generateAccessToken(User user) {
         Date now = new Date();
         Date expiration = new Date(now.getTime() + accessTokenExpiration);
-
         return Jwts.builder()
                 .subject(user.getId().toString())
                 .claim("email", user.getEmail())
@@ -55,6 +55,11 @@ public class JwtService {
     public String getEmailFromToken(String token) {
         Claims claims = extractAllClaims(token);
         return claims.get("email", String.class);
+    }
+
+    public List<String> getRolesFromToken(String token) {
+        Claims claims = extractAllClaims(token);
+        return claims.get("roles", List.class);
     }
 
     private Claims extractAllClaims(String token) {

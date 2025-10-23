@@ -22,7 +22,7 @@ import java.util.List;
 @Table(name = "users", indexes = {
         @Index(name = "idx_user_username", columnList = "username"),
         @Index(name = "idx_user_email", columnList = "email"),
-        @Index(name = "idx_user_created_at", columnList = "createdAt"),
+        @Index(name = "idx_user_created_at", columnList = "created_at"),
         @Index(name = "idx_user_active", columnList = "active")
 })
 public class User implements UserDetails {
@@ -32,13 +32,13 @@ public class User implements UserDetails {
     @Setter(AccessLevel.NONE)
     private Long id;
 
-    @Column(unique = true, nullable = false)
+    @Column(unique = true, nullable = false, length = 120)
     private String username;
 
-    @Column(unique = true, nullable = false)
+    @Column(unique = true, nullable = false, length = 180)
     private String email;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 255)
     private String password;
 
     @Column(nullable = false)
@@ -53,7 +53,7 @@ public class User implements UserDetails {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Customer> customers;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -97,23 +97,8 @@ public class User implements UserDetails {
                 .toList();
     }
 
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return Boolean.TRUE.equals(active);
-    }
+    @Override public boolean isAccountNonExpired() { return true; }
+    @Override public boolean isAccountNonLocked() { return true; }
+    @Override public boolean isCredentialsNonExpired() { return true; }
+    @Override public boolean isEnabled() { return Boolean.TRUE.equals(active); }
 }

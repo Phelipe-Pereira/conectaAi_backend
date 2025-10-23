@@ -195,12 +195,8 @@ public class AuthService {
     }
 
     @Transactional
-    public void logout(String refreshTokenValue) {
-        refreshTokenRepository.findByToken(refreshTokenValue)
-                .ifPresent(refreshToken -> {
-                    refreshToken.revoke();
-                    refreshTokenRepository.save(refreshToken);
-                });
+    public void logout(Long userId) {
+        refreshTokenRepository.revokeAllByUserId(userId, Instant.now());
     }
 
     @Transactional

@@ -33,10 +33,9 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(
-            @Valid @RequestBody RefreshTokenRequestDto request) {
-
-        authService.logout(request.refreshToken());
+    public ResponseEntity<Void> logout() {
+        Long userId = SecurityUtils.getCurrentUserId();
+        authService.logout(userId);
         return ResponseEntity.noContent().build();
     }
 
