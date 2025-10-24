@@ -16,6 +16,8 @@ public record RefundResponseDto(
         
         RefundStatus status,
         
+        String reason,
+        
         @JsonProperty("provider_reference")
         String providerReference,
         

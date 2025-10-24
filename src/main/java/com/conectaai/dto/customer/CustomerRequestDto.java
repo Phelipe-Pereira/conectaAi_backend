@@ -22,6 +22,7 @@ public record CustomerRequestDto(
         @Size(max = 254, message = "Email muito longo")
         String email,
 
+
         @Pattern(regexp = "^\\d{11}$", message = "CPF deve conter exatamente 11 dígitos")
         String cpf,
 

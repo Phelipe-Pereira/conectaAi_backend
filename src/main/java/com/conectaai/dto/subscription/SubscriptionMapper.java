@@ -21,6 +21,8 @@ public class SubscriptionMapper {
                 .currency(subscriptionRequest.currency())
                 .interval(subscriptionRequest.interval())
                 .status(SubscriptionStatus.PENDING)
+                .description(subscriptionRequest.description())
+                .billingType(subscriptionRequest.billingType())
                 .startAt(subscriptionRequest.startAt() != null ? subscriptionRequest.startAt() : LocalDateTime.now())
                 .endAt(subscriptionRequest.endAt())
                 .build();
@@ -35,6 +37,8 @@ public class SubscriptionMapper {
                 subscription.getCurrency(),
                 subscription.getInterval(),
                 subscription.getStatus(),
+                subscription.getDescription(),
+                subscription.getBillingType(),
                 subscription.getProvider(),
                 subscription.getProviderReference(),
                 subscription.getStartAt(),

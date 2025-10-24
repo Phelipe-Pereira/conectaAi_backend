@@ -15,6 +15,7 @@ public class RefundMapper {
                 .payment(payment)
                 .amount(refundRequest.amount())
                 .status(RefundStatus.PENDING)
+                .reason(refundRequest.reason())
                 .build();
     }
 
@@ -24,6 +25,7 @@ public class RefundMapper {
                 refund.getPayment().getId().toString(),
                 refund.getAmount(),
                 refund.getStatus(),
+                refund.getReason(),
                 refund.getProviderReference(),
                 refund.getCreatedAt()
         );

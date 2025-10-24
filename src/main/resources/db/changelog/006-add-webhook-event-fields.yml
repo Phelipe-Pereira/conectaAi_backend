@@ -1,0 +1,36 @@
+databaseChangeLog:
+  - changeSet:
+      id: 006-add-webhook-event-fields
+      author: system
+      changes:
+        - addColumn:
+            tableName: webhook_event
+            columns:
+              - column:
+                  name: external_id
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: true
+                    unique: true
+              - column:
+                  name: processed_at
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: true
+              - column:
+                  name: error_message
+                  type: VARCHAR(1000)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: retry_count
+                  type: INTEGER
+                  defaultValue: 0
+                  constraints:
+                    nullable: true
+              - column:
+                  name: signature
+                  type: VARCHAR(500)
+                  constraints:
+                    nullable: true
+

@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: 005-add-refund-reason
+      author: system
+      changes:
+        - addColumn:
+            tableName: refund
+            columns:
+              - column:
+                  name: reason
+                  type: VARCHAR(500)
+                  constraints:
+                    nullable: true
+

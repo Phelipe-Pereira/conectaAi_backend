@@ -7,9 +7,6 @@ import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-/**
- * DTO para criação de pagamento.
- */
 public record PaymentRequestDto(
         @NotBlank(message = "ID do cliente é obrigatório")
         @JsonProperty("customer_id")
@@ -26,11 +23,13 @@ public record PaymentRequestDto(
         @Size(max = 500, message = "Descrição muito longa")
         String description,
         
-        @JsonProperty("due_date")
-        LocalDateTime dueDate,
-        
+        @NotBlank(message = "Método de pagamento é obrigatório")
+        @Size(max = 50, message = "Método de pagamento inválido")
         @JsonProperty("payment_method")
         String paymentMethod,
+        
+        @JsonProperty("due_date")
+        LocalDateTime dueDate,
         
         @JsonProperty("installments")
         @Min(value = 1, message = "Número de parcelas deve ser no mínimo 1")

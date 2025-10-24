@@ -19,6 +19,8 @@ public class PaymentMapper {
                 .amount(paymentRequest.amount())
                 .currency(paymentRequest.currency())
                 .status(PaymentStatus.PENDING)
+                .description(paymentRequest.description())
+                .paymentMethod(paymentRequest.paymentMethod())
                 .dueDate(paymentRequest.dueDate())
                 .build();
     }
@@ -31,9 +33,11 @@ public class PaymentMapper {
                 payment.getAmount(),
                 payment.getCurrency(),
                 payment.getStatus(),
+                payment.getDescription(),
+                payment.getPaymentMethod(),
+                payment.getDueDate(),
                 payment.getProvider(),
                 payment.getProviderReference(),
-                payment.getDueDate(),
                 null,
                 null,
                 null,
@@ -49,9 +53,11 @@ public class PaymentMapper {
                 payment.getAmount(),
                 payment.getCurrency(),
                 payment.getStatus(),
+                payment.getDescription(),
+                payment.getPaymentMethod(),
+                payment.getDueDate(),
                 payment.getProvider(),
                 payment.getProviderReference(),
-                payment.getDueDate(),
                 paymentUrl,
                 barcode,
                 pixQrcode,

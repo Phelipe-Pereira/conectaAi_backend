@@ -65,6 +65,15 @@ public class Subscription {
     @NotNull @Enumerated(EnumType.STRING)
     private SubscriptionStatus status;
 
+    @Size(max = 500)
+    @Column(length = 500)
+    private String description;
+
+    @NotNull
+    @Size(max = 50)
+    @Column(name = "billing_type", length = 50, nullable = false)
+    private String billingType;
+
     @NotNull @Enumerated(EnumType.STRING)
     private Provider provider;
 
@@ -81,6 +90,12 @@ public class Subscription {
     private void normalizeData() {
         if (this.providerReference != null) {
             this.providerReference = this.providerReference.trim();
+        }
+        if (this.description != null) {
+            this.description = this.description.trim();
+        }
+        if (this.billingType != null) {
+            this.billingType = this.billingType.trim().toUpperCase();
         }
     }
 

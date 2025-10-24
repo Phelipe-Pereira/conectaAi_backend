@@ -13,3 +13,11 @@ databaseChangeLog:
       file: classpath:db/changelog/006-create-password-reset-token-table.yml
   - include:
       file: classpath:db/changelog/007-add-user-id-to-customer.yml
+  - include:
+      file: classpath:db/changelog/003-add-payment-fields.yml
+  - include:
+      file: classpath:db/changelog/004-add-subscription-fields.yml
+  - include:
+      file: classpath:db/changelog/005-add-refund-reason.yml
+  - include:
+      file: classpath:db/changelog/006-add-webhook-event-fields.yml

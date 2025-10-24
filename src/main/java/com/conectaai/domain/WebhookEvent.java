@@ -55,11 +55,39 @@ public class WebhookEvent {
     @Column(name = "received_at", updatable = false)
     private LocalDateTime receivedAt;
 
+    @Size(max = 100)
+    @Column(name = "external_id", length = 100, unique = true)
+    private String externalId;
+
+    @Column(name = "processed_at")
+    private LocalDateTime processedAt;
+
+    @Size(max = 1000)
+    @Column(name = "error_message", length = 1000)
+    private String errorMessage;
+
+    @Column(name = "retry_count")
+    @Builder.Default
+    private Integer retryCount = 0;
+
+    @Size(max = 500)
+    @Column(length = 500)
+    private String signature;
+
     @PrePersist
     @PreUpdate
     private void normalizeData() {
         if (this.eventType != null) {
             this.eventType = this.eventType.toLowerCase().trim();
+        }
+        if (this.externalId != null) {
+            this.externalId = this.externalId.trim();
+        }
+        if (this.errorMessage != null) {
+            this.errorMessage = this.errorMessage.trim();
+        }
+        if (this.signature != null) {
+            this.signature = this.signature.trim();
         }
     }
 

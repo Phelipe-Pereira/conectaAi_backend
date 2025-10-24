@@ -27,6 +27,11 @@ public record SubscriptionRequestDto(
         @Size(max = 500, message = "Descrição muito longa")
         String description,
         
+        @NotBlank(message = "Tipo de cobrança é obrigatório")
+        @Size(max = 50, message = "Tipo de cobrança inválido")
+        @JsonProperty("billing_type")
+        String billingType,
+        
         @JsonProperty("start_at")
         LocalDateTime startAt,
         

@@ -37,12 +37,27 @@ public class Refund {
     @NotNull @Enumerated(EnumType.STRING)
     private RefundStatus status;
 
+    @Size(max = 500)
+    @Column(length = 500)
+    private String reason;
+
     @Size(max = 100)
     private String providerReference;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
+
+    @PrePersist
+    @PreUpdate
+    private void normalizeData() {
+        if (this.providerReference != null) {
+            this.providerReference = this.providerReference.trim();
+        }
+        if (this.reason != null) {
+            this.reason = this.reason.trim();
+        }
+    }
 
     @Override
     public boolean equals(Object o) {

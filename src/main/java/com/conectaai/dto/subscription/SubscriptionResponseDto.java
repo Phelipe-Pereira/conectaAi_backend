@@ -26,6 +26,11 @@ public record SubscriptionResponseDto(
         
         SubscriptionStatus status,
         
+        String description,
+        
+        @JsonProperty("billing_type")
+        String billingType,
+        
         Provider provider,
         
         @JsonProperty("provider_reference")

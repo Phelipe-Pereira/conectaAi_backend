@@ -59,6 +59,15 @@ public class Payment {
 
     private LocalDateTime dueDate;
 
+    @Size(max = 500)
+    @Column(length = 500)
+    private String description;
+
+    @NotNull
+    @Size(max = 50)
+    @Column(name = "payment_method", length = 50, nullable = false)
+    private String paymentMethod;
+
     @NotNull @Enumerated(EnumType.STRING)
     private Provider provider;
 
@@ -74,6 +83,12 @@ public class Payment {
     private void normalizeData() {
         if (this.providerReference != null) {
             this.providerReference = this.providerReference.trim();
+        }
+        if (this.description != null) {
+            this.description = this.description.trim();
+        }
+        if (this.paymentMethod != null) {
+            this.paymentMethod = this.paymentMethod.trim().toUpperCase();
         }
     }
 

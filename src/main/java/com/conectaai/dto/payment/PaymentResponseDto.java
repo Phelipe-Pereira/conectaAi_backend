@@ -8,9 +8,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-/**
- * DTO de resposta para pagamento.
- */
 public record PaymentResponseDto(
         String id,
         
@@ -26,18 +23,22 @@ public record PaymentResponseDto(
         
         PaymentStatus status,
         
+        String description,
+        
+        @JsonProperty("payment_method")
+        String paymentMethod,
+        
+        @JsonProperty("due_date")
+        LocalDateTime dueDate,
+        
         Provider provider,
         
         @JsonProperty("provider_reference")
         String providerReference,
         
-        @JsonProperty("due_date")
-        LocalDateTime dueDate,
-        
         @JsonProperty("payment_url")
         String paymentUrl,
         
-        @JsonProperty("barcode")
         String barcode,
         
         @JsonProperty("pix_qrcode")
