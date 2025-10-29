@@ -1,10 +1,20 @@
 package com.conectaai.enums;
 
-
 public enum PaymentStatus {
     PENDING,
-    PAID,
+    AWAITING_PAYMENT_METHOD,
+    AWAITING_RISK_ANALYSIS,
+    PROCESSING,
+    REQUIRES_ACTION,
+    AUTHORIZED,
+    CONFIRMED,
+    RECEIVED,
     FAILED,
+    EXPIRED,
     CANCELLED,
-    REFUNDED
+    REFUND_REQUESTED,
+    REFUNDED,
+    PARTIALLY_REFUNDED,
+    CHARGEBACK_REQUESTED,
+    IN_DISPUTE
 }

@@ -72,6 +72,11 @@ public class CustomerService {
         customerRepository.save(customer);
     }
 
+    @Transactional(readOnly = true)
+    public Customer findCustomerEntityById(Long id) {
+        return findByIdOrThrow(id);
+    }
+
     private Customer findByIdOrThrow(Long id) {
         return customerRepository.findById(id)
                 .orElseThrow(() -> new CustomerNotFoundException("Cliente não encontrado: " + id));

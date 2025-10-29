@@ -45,6 +45,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/health", "/actuator/health").permitAll()
                         .requestMatchers("/api/v1/auth/change-password", "/api/v1/auth/me", "/api/v1/auth/logout").authenticated()
                         .requestMatchers("/api/v1/customers/**").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("/api/v1/payments/**").hasAnyRole("USER", "ADMIN")
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1/users/**").hasAnyRole("USER", "ADMIN")
                         .anyRequest().authenticated()

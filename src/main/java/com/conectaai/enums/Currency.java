@@ -2,6 +2,9 @@ package com.conectaai.enums;
 
 public enum Currency {
 
-    REAL,
-    DOLAR
+    BRL,
+    USD,
+    EUR,
+    ARS,
+    MXN
 }

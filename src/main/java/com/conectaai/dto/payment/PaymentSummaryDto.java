@@ -10,15 +10,12 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-public record PaymentResponseDto(
+public record PaymentSummaryDto(
 
         Long id,
 
         @JsonProperty("external_id")
         String externalId,
-
-        @JsonProperty("provider_payment_id")
-        String providerPaymentId,
 
         Provider provider,
 
@@ -33,8 +30,6 @@ public record PaymentResponseDto(
         @JsonProperty("payment_method")
         String paymentMethod,
 
-        String description,
-
         @JsonProperty("due_date")
         LocalDate dueDate,
 
@@ -44,16 +39,8 @@ public record PaymentResponseDto(
         @JsonProperty("payment_url")
         String paymentUrl,
 
-        @JsonProperty("qr_code")
-        String qrCode,
-
-        @JsonProperty("bar_code")
-        String barCode,
-
         @JsonProperty("created_at")
-        LocalDateTime createdAt,
-
-        @JsonProperty("updated_at")
-        LocalDateTime updatedAt
+        LocalDateTime createdAt
 ) {
 }
+

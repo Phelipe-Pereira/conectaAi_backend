@@ -3,6 +3,9 @@ CURSOR_TASK.md
 CURSOR_TASK_TWO.md
 cursor_task_three.md
 CURSOR_TASK*.md
+PAYMENT_SERVICE_SPEC.md
+PAYMENT_OPTIMIZATION.md
+GATEWAY_COMPARISON.md
 *.http
 api-tests.http
 Gateway-Collection.json
@@ -10,6 +13,9 @@ HELP.md
 WEBHOOK_ARCHITECTURE.md
 YAML_CHANGELOG.md
 conectaai-public-v1-api.yaml
+.env.json
+test-complete.ps1
+test-*.ps1
 
 ### Gradle ###
 .gradle

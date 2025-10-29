@@ -1,0 +1,93 @@
+databaseChangeLog:
+  - changeSet:
+      id: 009-update-payment-structure
+      author: system
+      changes:
+        # Renomear public_id para external_id
+        - renameColumn:
+            tableName: payment
+            oldColumnName: public_id
+            newColumnName: external_id
+            columnDataType: VARCHAR(100)
+
+        # Renomear provider_reference para provider_payment_id
+        - renameColumn:
+            tableName: payment
+            oldColumnName: provider_reference
+            newColumnName: provider_payment_id
+            columnDataType: VARCHAR(100)
+
+        # Alterar due_date de TIMESTAMP para DATE e tornar NOT NULL
+        - modifyDataType:
+            tableName: payment
+            columnName: due_date
+            newDataType: DATE
+
+        - addNotNullConstraint:
+            tableName: payment
+            columnName: due_date
+            columnDataType: DATE
+
+        # Alterar tamanho da coluna status para suportar novos valores
+        - modifyDataType:
+            tableName: payment
+            columnName: status
+            newDataType: VARCHAR(30)
+
+        # Adicionar novas colunas
+        - addColumn:
+            tableName: payment
+            columns:
+              - column:
+                  name: paid_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: true
+
+              - column:
+                  name: payment_url
+                  type: VARCHAR(500)
+                  constraints:
+                    nullable: true
+
+              - column:
+                  name: qr_code
+                  type: TEXT
+                  constraints:
+                    nullable: true
+
+              - column:
+                  name: bar_code
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: true
+
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: true
+
+              - column:
+                  name: user_id
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+
+        # Remover constraint antiga e criar nova para provider + provider_payment_id
+        - dropUniqueConstraint:
+            tableName: payment
+            constraintName: payment_public_id_key
+
+        - addUniqueConstraint:
+            tableName: payment
+            columnNames: provider, provider_payment_id
+            constraintName: uk_payment_provider_payment_id
+
+        - createIndex:
+            tableName: payment
+            indexName: idx_payment_due_date
+            columns:
+              - column:
+                  name: due_date
+

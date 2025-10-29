@@ -1,40 +1,41 @@
 package com.conectaai.dto.payment;
 
 import com.conectaai.enums.Currency;
+import com.conectaai.enums.Provider;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 public record PaymentRequestDto(
-        @NotBlank(message = "ID do cliente é obrigatório")
+
+        @NotNull(message = "ID do cliente é obrigatório")
         @JsonProperty("customer_id")
-        String customerId,
-        
+        Long customerId,
+
+        @NotNull(message = "Provedor é obrigatório")
+        Provider provider,
+
         @NotNull(message = "Valor é obrigatório")
-        @DecimalMin(value = "0.01", message = "Valor mínimo é 0.01")
-        @Digits(integer = 17, fraction = 2, message = "Valor inválido")
+        @DecimalMin(value = "5.00", message = "Valor mínimo é R$ 5,00")
+        @Digits(integer = 17, fraction = 2, message = "Valor deve ter no máximo 2 casas decimais")
         BigDecimal amount,
-        
+
         @NotNull(message = "Moeda é obrigatória")
         Currency currency,
-        
-        @Size(max = 500, message = "Descrição muito longa")
-        String description,
-        
+
         @NotBlank(message = "Método de pagamento é obrigatório")
-        @Size(max = 50, message = "Método de pagamento inválido")
+        @Size(max = 50, message = "Método de pagamento deve ter no máximo 50 caracteres")
         @JsonProperty("payment_method")
         String paymentMethod,
-        
+
+        @Size(max = 500, message = "Descrição deve ter no máximo 500 caracteres")
+        String description,
+
+        @NotNull(message = "Data de vencimento é obrigatória")
+        @Future(message = "Data de vencimento deve ser no futuro")
         @JsonProperty("due_date")
-        LocalDateTime dueDate,
-        
-        @JsonProperty("installments")
-        @Min(value = 1, message = "Número de parcelas deve ser no mínimo 1")
-        @Max(value = 12, message = "Número de parcelas deve ser no máximo 12")
-        Integer installments
+        LocalDate dueDate
 ) {
 }
-

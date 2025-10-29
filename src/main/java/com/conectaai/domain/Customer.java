@@ -130,6 +130,19 @@ public class Customer {
         return okCpf || okCnpj;
     }
 
+    public String getFullName() {
+        if (this.firstName == null && this.lastName == null) {
+            return null;
+        }
+        if (this.firstName == null) {
+            return this.lastName;
+        }
+        if (this.lastName == null) {
+            return this.firstName;
+        }
+        return this.firstName + " " + this.lastName;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

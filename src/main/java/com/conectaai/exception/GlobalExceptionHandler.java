@@ -141,6 +141,76 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
     }
 
+    @ExceptionHandler(PaymentNotFoundException.class)
+    public ResponseEntity<ErrorResponseDto> handlePaymentNotFound(PaymentNotFoundException exception) {
+        ErrorDetailDto errorDetail = new ErrorDetailDto(
+                "PAYMENT_NOT_FOUND",
+                exception.getMessage()
+        );
+        ErrorResponseDto errorResponse = new ErrorResponseDto(errorDetail);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    }
+
+    @ExceptionHandler(PaymentAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponseDto> handlePaymentAlreadyExists(PaymentAlreadyExistsException exception) {
+        ErrorDetailDto errorDetail = new ErrorDetailDto(
+                "PAYMENT_ALREADY_EXISTS",
+                exception.getMessage()
+        );
+        ErrorResponseDto errorResponse = new ErrorResponseDto(errorDetail);
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+    }
+
+    @ExceptionHandler(InvalidPaymentStatusTransitionException.class)
+    public ResponseEntity<ErrorResponseDto> handleInvalidPaymentStatusTransition(InvalidPaymentStatusTransitionException exception) {
+        ErrorDetailDto errorDetail = new ErrorDetailDto(
+                "INVALID_STATUS_TRANSITION",
+                exception.getMessage()
+        );
+        ErrorResponseDto errorResponse = new ErrorResponseDto(errorDetail);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
+    @ExceptionHandler(UnsupportedPaymentMethodException.class)
+    public ResponseEntity<ErrorResponseDto> handleUnsupportedPaymentMethod(UnsupportedPaymentMethodException exception) {
+        ErrorDetailDto errorDetail = new ErrorDetailDto(
+                "UNSUPPORTED_PAYMENT_METHOD",
+                exception.getMessage()
+        );
+        ErrorResponseDto errorResponse = new ErrorResponseDto(errorDetail);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
+    @ExceptionHandler(UnsupportedCurrencyException.class)
+    public ResponseEntity<ErrorResponseDto> handleUnsupportedCurrency(UnsupportedCurrencyException exception) {
+        ErrorDetailDto errorDetail = new ErrorDetailDto(
+                "UNSUPPORTED_CURRENCY",
+                exception.getMessage()
+        );
+        ErrorResponseDto errorResponse = new ErrorResponseDto(errorDetail);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
+    @ExceptionHandler(InvalidAmountException.class)
+    public ResponseEntity<ErrorResponseDto> handleInvalidAmount(InvalidAmountException exception) {
+        ErrorDetailDto errorDetail = new ErrorDetailDto(
+                "INVALID_AMOUNT",
+                exception.getMessage()
+        );
+        ErrorResponseDto errorResponse = new ErrorResponseDto(errorDetail);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
+    @ExceptionHandler(InvalidDueDateException.class)
+    public ResponseEntity<ErrorResponseDto> handleInvalidDueDate(InvalidDueDateException exception) {
+        ErrorDetailDto errorDetail = new ErrorDetailDto(
+                "INVALID_DUE_DATE",
+                exception.getMessage()
+        );
+        ErrorResponseDto errorResponse = new ErrorResponseDto(errorDetail);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponseDto> handleIllegalArgument(IllegalArgumentException exception) {
         ErrorDetailDto errorDetail = new ErrorDetailDto(
