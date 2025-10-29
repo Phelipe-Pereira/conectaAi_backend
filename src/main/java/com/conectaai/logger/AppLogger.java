@@ -24,7 +24,7 @@ public final class AppLogger {
     }
     
     public void info(String methodName, String message, Object... args) {
-        String formattedMessage = String.format(message, args);
+        String formattedMessage = formatMessage(message, args);
         log.info(LOG_FORMAT, className, methodName, formattedMessage);
     }
     
@@ -33,7 +33,7 @@ public final class AppLogger {
     }
     
     public void warn(String methodName, String message, Object... args) {
-        String formattedMessage = String.format(message, args);
+        String formattedMessage = formatMessage(message, args);
         log.warn(LOG_FORMAT, className, methodName, formattedMessage);
     }
     
@@ -46,8 +46,19 @@ public final class AppLogger {
     }
     
     public void error(String methodName, String message, Object... args) {
-        String formattedMessage = String.format(message, args);
+        String formattedMessage = formatMessage(message, args);
         log.error(LOG_FORMAT, className, methodName, formattedMessage);
+    }
+    
+    private String formatMessage(String message, Object... args) {
+        if (args == null || args.length == 0) {
+            return message;
+        }
+        String result = message;
+        for (Object arg : args) {
+            result = result.replaceFirst("\\{}", arg != null ? arg.toString() : "null");
+        }
+        return result;
     }
 }
 

@@ -18,6 +18,12 @@ public record CustomerUpdateDto(
         @Size(max = 254, message = "Email muito longo")
         String email,
         
+        @Pattern(regexp = "^\\d{11}$", message = "CPF deve conter exatamente 11 dígitos")
+        String cpf,
+        
+        @Pattern(regexp = "^\\d{14}$", message = "CNPJ deve conter exatamente 14 dígitos")
+        String cnpj,
+        
         @Pattern(regexp = "^\\d{10,11}$", message = "Telefone deve ter 10 ou 11 dígitos")
         String phone,
         

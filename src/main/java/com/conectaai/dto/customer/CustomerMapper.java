@@ -38,8 +38,8 @@ public class CustomerMapper {
                 customer.getLastName(),
                 customer.getFirstName() + " " + customer.getLastName(),
                 customer.getEmail(),
-                maskCpf(customer.getCpf()),
-                maskCnpj(customer.getCnpj()),
+                customer.getCpf(),
+                customer.getCnpj(),
                 customer.getPhone(),
                 customer.getAddress(),
                 customer.getAddressNumber(),
@@ -65,6 +65,14 @@ public class CustomerMapper {
         }
         if (updateRequest.email() != null) {
             customer.setEmail(updateRequest.email());
+        }
+        if (updateRequest.cpf() != null) {
+            customer.setCpf(updateRequest.cpf());
+            customer.setCnpj(null);
+        }
+        if (updateRequest.cnpj() != null) {
+            customer.setCnpj(updateRequest.cnpj());
+            customer.setCpf(null);
         }
         if (updateRequest.phone() != null) {
             customer.setPhone(updateRequest.phone());
@@ -98,18 +106,5 @@ public class CustomerMapper {
         }
     }
 
-    private static String maskCpf(String cpf) {
-        if (cpf == null || cpf.length() != 11) {
-            return null;
-        }
-        return cpf.substring(0, 3) + "." + cpf.substring(3, 6) + "." + cpf.substring(6, 9) + "-**";
-    }
-
-    private static String maskCnpj(String cnpj) {
-        if (cnpj == null || cnpj.length() != 14) {
-            return null;
-        }
-        return cnpj.substring(0, 2) + "." + cnpj.substring(2, 5) + "." + cnpj.substring(5, 8) + "/****-**";
-    }
 }
 

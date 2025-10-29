@@ -1,10 +1,17 @@
+### Arquivos de desenvolvimento interno ###
 CURSOR_TASK.md
 CURSOR_TASK_TWO.md
 cursor_task_three.md
+CURSOR_TASK*.md
+*.http
+api-tests.http
+Gateway-Collection.json
 HELP.md
 WEBHOOK_ARCHITECTURE.md
 YAML_CHANGELOG.md
 conectaai-public-v1-api.yaml
+
+### Gradle ###
 .gradle
 build/
 !gradle/wrapper/gradle-wrapper.jar

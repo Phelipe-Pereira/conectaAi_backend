@@ -3,6 +3,7 @@ package com.conectaai.exception;
 import com.conectaai.dto.error.ErrorDetailDto;
 import com.conectaai.dto.error.ErrorResponseDto;
 import com.conectaai.dto.error.ValidationErrorDto;
+import com.conectaai.logger.AppLogger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -15,6 +16,8 @@ import java.util.List;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final AppLogger LOGGER = AppLogger.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(UserAlreadyExistsException.class)
     public ResponseEntity<ErrorResponseDto> handleUserAlreadyExists(UserAlreadyExistsException exception) {
@@ -118,8 +121,71 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(errorResponse);
     }
 
+    @ExceptionHandler(CustomerAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponseDto> handleCustomerAlreadyExists(CustomerAlreadyExistsException exception) {
+        ErrorDetailDto errorDetail = new ErrorDetailDto(
+                "CUSTOMER_ALREADY_EXISTS",
+                exception.getMessage()
+        );
+        ErrorResponseDto errorResponse = new ErrorResponseDto(errorDetail);
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+    }
+
+    @ExceptionHandler(CustomerNotFoundException.class)
+    public ResponseEntity<ErrorResponseDto> handleCustomerNotFound(CustomerNotFoundException exception) {
+        ErrorDetailDto errorDetail = new ErrorDetailDto(
+                "CUSTOMER_NOT_FOUND",
+                exception.getMessage()
+        );
+        ErrorResponseDto errorResponse = new ErrorResponseDto(errorDetail);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponseDto> handleIllegalArgument(IllegalArgumentException exception) {
+        ErrorDetailDto errorDetail = new ErrorDetailDto(
+                "INVALID_ARGUMENT",
+                exception.getMessage()
+        );
+        ErrorResponseDto errorResponse = new ErrorResponseDto(errorDetail);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
+    @ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponseDto> handleDataIntegrityViolation(
+            org.springframework.dao.DataIntegrityViolationException exception) {
+        String message = "Erro de integridade de dados";
+        
+        String exceptionMessage = exception.getMessage();
+        if (exceptionMessage != null) {
+            if (exceptionMessage.contains("customer_email_key") || 
+                exceptionMessage.contains("idx_customer_email")) {
+                message = "Email já cadastrado";
+            } else if (exceptionMessage.contains("customer_cpf_key") ||
+                       exceptionMessage.contains("cpf")) {
+                message = "CPF já cadastrado";
+            } else if (exceptionMessage.contains("customer_cnpj_key") ||
+                       exceptionMessage.contains("cnpj")) {
+                message = "CNPJ já cadastrado";
+            } else if (exceptionMessage.contains("customer_external_id_key") ||
+                       exceptionMessage.contains("external_id")) {
+                message = "ID externo já cadastrado";
+            }
+        }
+        
+        ErrorDetailDto errorDetail = new ErrorDetailDto(
+                "DUPLICATE_ENTRY",
+                message
+        );
+        ErrorResponseDto errorResponse = new ErrorResponseDto(errorDetail);
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponseDto> handleGenericException(Exception exception) {
+        LOGGER.error("handleGenericException", "Erro inesperado: {} - Mensagem: {}", exception.getClass().getName(), exception.getMessage());
+        LOGGER.error("handleGenericException", "Stack trace completo:", exception);
+        
         ErrorDetailDto errorDetail = new ErrorDetailDto(
                 "INTERNAL_SERVER_ERROR",
                 "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde"

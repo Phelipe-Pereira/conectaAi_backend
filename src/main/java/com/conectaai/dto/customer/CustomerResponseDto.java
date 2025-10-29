@@ -19,11 +19,9 @@ public record CustomerResponseDto(
         
         String email,
         
-        @JsonProperty("cpf_masked")
-        String cpfMasked,
+        String cpf,
         
-        @JsonProperty("cnpj_masked")
-        String cnpjMasked,
+        String cnpj,
         
         String phone,
         
