@@ -12,12 +12,24 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
-@Table(name = "refund")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(
+        name = "refund",
+        uniqueConstraints = @UniqueConstraint(
+                name = "uk_refund_provider_refund_id",
+                columnNames = {"payment_id", "provider_refund_id"}
+        ),
+        indexes = {
+                @Index(name = "idx_refund_external_id", columnList = "external_id"),
+                @Index(name = "idx_refund_status", columnList = "status"),
+                @Index(name = "idx_refund_payment_id", columnList = "payment_id"),
+                @Index(name = "idx_refund_created_at", columnList = "created_at")
+        }
+)
 public class Refund {
 
     @Id
@@ -25,16 +37,23 @@ public class Refund {
     @Setter(AccessLevel.NONE)
     private Long id;
 
+    @NotNull
+    @Column(name = "external_id", unique = true, nullable = false)
+    @Size(max = 100)
+    private String externalId;
+
     @ManyToOne
     @NotNull
     @JoinColumn(name = "payment_id", nullable = false)
     private Payment payment;
 
-    @Column(precision = 19, scale = 2)
+    @Column(precision = 19, scale = 2, nullable = false)
     @NotNull
     private BigDecimal amount;
 
-    @NotNull @Enumerated(EnumType.STRING)
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private RefundStatus status;
 
     @Size(max = 500)
@@ -42,20 +61,37 @@ public class Refund {
     private String reason;
 
     @Size(max = 100)
-    private String providerReference;
+    @Column(name = "provider_refund_id")
+    private String providerRefundId;
+
+    @Column(name = "processed_at")
+    private LocalDateTime processedAt;
 
     @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
+    @Column(name = "created_at", updatable = false, nullable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @PrePersist
     @PreUpdate
     private void normalizeData() {
-        if (this.providerReference != null) {
-            this.providerReference = this.providerReference.trim();
+        this.updatedAt = LocalDateTime.now();
+        
+        if (this.providerRefundId != null) {
+            this.providerRefundId = this.providerRefundId.trim();
         }
         if (this.reason != null) {
             this.reason = this.reason.trim();
+        }
+        
+        if (this.amount != null && this.amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Valor do reembolso deve ser maior que zero");
         }
     }
 

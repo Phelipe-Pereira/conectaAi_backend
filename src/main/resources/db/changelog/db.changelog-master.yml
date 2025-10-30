@@ -25,3 +25,5 @@ databaseChangeLog:
       file: classpath:db/changelog/009-update-payment-structure.yml
   - include:
       file: classpath:db/changelog/010-update-subscription-structure.yml
+  - include:
+      file: classpath:db/changelog/011-update-refund-structure.yml

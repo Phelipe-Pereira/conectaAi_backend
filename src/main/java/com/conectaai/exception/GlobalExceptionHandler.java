@@ -241,6 +241,56 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
+    @ExceptionHandler(RefundNotFoundException.class)
+    public ResponseEntity<ErrorResponseDto> handleRefundNotFound(RefundNotFoundException exception) {
+        ErrorDetailDto errorDetail = new ErrorDetailDto(
+                "REFUND_NOT_FOUND",
+                exception.getMessage()
+        );
+        ErrorResponseDto errorResponse = new ErrorResponseDto(errorDetail);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    }
+
+    @ExceptionHandler(RefundAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponseDto> handleRefundAlreadyExists(RefundAlreadyExistsException exception) {
+        ErrorDetailDto errorDetail = new ErrorDetailDto(
+                "REFUND_ALREADY_EXISTS",
+                exception.getMessage()
+        );
+        ErrorResponseDto errorResponse = new ErrorResponseDto(errorDetail);
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+    }
+
+    @ExceptionHandler(InvalidRefundStatusTransitionException.class)
+    public ResponseEntity<ErrorResponseDto> handleInvalidRefundStatusTransition(InvalidRefundStatusTransitionException exception) {
+        ErrorDetailDto errorDetail = new ErrorDetailDto(
+                "INVALID_REFUND_STATUS_TRANSITION",
+                exception.getMessage()
+        );
+        ErrorResponseDto errorResponse = new ErrorResponseDto(errorDetail);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
+    @ExceptionHandler(InsufficientRefundableAmountException.class)
+    public ResponseEntity<ErrorResponseDto> handleInsufficientRefundableAmount(InsufficientRefundableAmountException exception) {
+        ErrorDetailDto errorDetail = new ErrorDetailDto(
+                "INSUFFICIENT_REFUNDABLE_AMOUNT",
+                exception.getMessage()
+        );
+        ErrorResponseDto errorResponse = new ErrorResponseDto(errorDetail);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
+    @ExceptionHandler(PaymentNotRefundableException.class)
+    public ResponseEntity<ErrorResponseDto> handlePaymentNotRefundable(PaymentNotRefundableException exception) {
+        ErrorDetailDto errorDetail = new ErrorDetailDto(
+                "PAYMENT_NOT_REFUNDABLE",
+                exception.getMessage()
+        );
+        ErrorResponseDto errorResponse = new ErrorResponseDto(errorDetail);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponseDto> handleIllegalArgument(IllegalArgumentException exception) {
         ErrorDetailDto errorDetail = new ErrorDetailDto(

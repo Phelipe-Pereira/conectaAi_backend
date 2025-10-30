@@ -7,21 +7,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-public record RefundResponseDto(
+public record RefundSummaryDto(
         Long id,
         @JsonProperty("external_id")
         String externalId,
-        @JsonProperty("provider_refund_id")
-        String providerRefundId,
         PaymentSummaryDto payment,
         BigDecimal amount,
         RefundStatus status,
-        String reason,
-        @JsonProperty("processed_at")
-        LocalDateTime processedAt,
         @JsonProperty("created_at")
-        LocalDateTime createdAt,
-        @JsonProperty("updated_at")
-        LocalDateTime updatedAt
+        LocalDateTime createdAt
 ) {
 }
+

@@ -1,22 +1,22 @@
 package com.conectaai.dto.refund;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
 
 public record RefundRequestDto(
-        @NotBlank(message = "ID do pagamento é obrigatório")
+        @NotNull(message = "O ID do pagamento é obrigatório")
         @JsonProperty("payment_id")
-        String paymentId,
-        
-        @NotNull(message = "Valor é obrigatório")
-        @DecimalMin(value = "0.01", message = "Valor mínimo é 0.01")
-        @Digits(integer = 17, fraction = 2, message = "Valor inválido")
+        Long paymentId,
+
+        @NotNull(message = "O valor do reembolso é obrigatório")
+        @DecimalMin(value = "0.01", message = "O valor mínimo do reembolso é R$ 0,01")
         BigDecimal amount,
-        
-        @Size(max = 500, message = "Motivo muito longo")
+
+        @Size(max = 500, message = "O motivo deve ter no máximo 500 caracteres")
         String reason
 ) {
 }
-

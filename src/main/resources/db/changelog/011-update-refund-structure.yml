@@ -1,0 +1,84 @@
+databaseChangeLog:
+  - changeSet:
+      id: 011-update-refund-structure
+      author: system
+      changes:
+        - renameColumn:
+            tableName: refund
+            oldColumnName: provider_reference
+            newColumnName: provider_refund_id
+            columnDataType: VARCHAR(100)
+
+        - addColumn:
+            tableName: refund
+            columns:
+              - column:
+                  name: external_id
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: processed_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: true
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: true
+              - column:
+                  name: user_id
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+
+        - addNotNullConstraint:
+            tableName: refund
+            columnName: amount
+            columnDataType: NUMERIC(19, 2)
+
+        - addNotNullConstraint:
+            tableName: refund
+            columnName: status
+            columnDataType: VARCHAR(255)
+
+        - addNotNullConstraint:
+            tableName: refund
+            columnName: created_at
+            columnDataType: TIMESTAMP WITH TIME ZONE
+
+        - addUniqueConstraint:
+            tableName: refund
+            columnNames: payment_id, provider_refund_id
+            constraintName: uk_refund_provider_refund_id
+
+        - createIndex:
+            tableName: refund
+            indexName: idx_refund_external_id
+            columns:
+              - column:
+                  name: external_id
+
+        - createIndex:
+            tableName: refund
+            indexName: idx_refund_status
+            columns:
+              - column:
+                  name: status
+
+        - createIndex:
+            tableName: refund
+            indexName: idx_refund_payment_id
+            columns:
+              - column:
+                  name: payment_id
+
+        - createIndex:
+            tableName: refund
+            indexName: idx_refund_created_at
+            columns:
+              - column:
+                  name: created_at
+
