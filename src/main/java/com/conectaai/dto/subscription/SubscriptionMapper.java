@@ -2,49 +2,97 @@ package com.conectaai.dto.subscription;
 
 import com.conectaai.domain.Customer;
 import com.conectaai.domain.Subscription;
+import com.conectaai.dto.customer.CustomerSummaryDto;
 import com.conectaai.enums.SubscriptionStatus;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
-public class SubscriptionMapper {
+public final class SubscriptionMapper {
 
     private SubscriptionMapper() {
-        throw new UnsupportedOperationException("Utility class");
     }
 
     public static Subscription toEntity(SubscriptionRequestDto subscriptionRequest, Customer customer) {
         return Subscription.builder()
-                .publicId(UUID.randomUUID().toString())
+                .externalId(generateExternalId())
                 .customer(customer)
+                .provider(subscriptionRequest.provider())
                 .amount(subscriptionRequest.amount())
                 .currency(subscriptionRequest.currency())
                 .interval(subscriptionRequest.interval())
-                .status(SubscriptionStatus.PENDING)
+                .paymentMethod(subscriptionRequest.paymentMethod())
                 .description(subscriptionRequest.description())
-                .billingType(subscriptionRequest.billingType())
-                .startAt(subscriptionRequest.startAt() != null ? subscriptionRequest.startAt() : LocalDateTime.now())
+                .startAt(subscriptionRequest.startAt())
                 .endAt(subscriptionRequest.endAt())
+                .status(SubscriptionStatus.PENDING)
                 .build();
     }
 
     public static SubscriptionResponseDto toResponseDto(Subscription subscription) {
         return new SubscriptionResponseDto(
-                subscription.getId().toString(),
-                subscription.getPublicId(),
-                subscription.getCustomer().getId().toString(),
+                subscription.getId(),
+                subscription.getExternalId(),
+                subscription.getProviderSubscriptionId(),
+                subscription.getProvider(),
+                toCustomerSummary(subscription.getCustomer()),
                 subscription.getAmount(),
                 subscription.getCurrency(),
                 subscription.getInterval(),
                 subscription.getStatus(),
+                subscription.getPaymentMethod(),
                 subscription.getDescription(),
-                subscription.getBillingType(),
+                subscription.getStartAt(),
+                subscription.getEndAt(),
+                subscription.getCreatedAt(),
+                subscription.getUpdatedAt()
+        );
+    }
+
+    public static SubscriptionSummaryDto toSummaryDto(Subscription subscription) {
+        return new SubscriptionSummaryDto(
+                subscription.getId(),
+                subscription.getExternalId(),
                 subscription.getProvider(),
-                subscription.getProviderReference(),
+                toCustomerSummary(subscription.getCustomer()),
+                subscription.getAmount(),
+                subscription.getCurrency(),
+                subscription.getInterval(),
+                subscription.getStatus(),
+                subscription.getPaymentMethod(),
                 subscription.getStartAt(),
                 subscription.getEndAt(),
                 subscription.getCreatedAt()
         );
     }
-}
 
+    public static void updateEntity(Subscription subscription, SubscriptionUpdateDto updateRequest) {
+        if (updateRequest.status() != null) {
+            subscription.setStatus(updateRequest.status());
+        }
+        if (updateRequest.providerSubscriptionId() != null) {
+            subscription.setProviderSubscriptionId(updateRequest.providerSubscriptionId());
+        }
+        if (updateRequest.endAt() != null) {
+            subscription.setEndAt(updateRequest.endAt());
+        }
+        if (updateRequest.description() != null) {
+            subscription.setDescription(updateRequest.description());
+        }
+    }
+
+    private static CustomerSummaryDto toCustomerSummary(Customer customer) {
+        if (customer == null) {
+            return null;
+        }
+        return new CustomerSummaryDto(
+                customer.getId(),
+                customer.getExternalId(),
+                customer.getFullName(),
+                customer.getEmail()
+        );
+    }
+
+    private static String generateExternalId() {
+        return "sub_" + UUID.randomUUID().toString().replace("-", "");
+    }
+}

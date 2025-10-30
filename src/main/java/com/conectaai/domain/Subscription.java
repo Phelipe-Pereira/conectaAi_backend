@@ -23,12 +23,14 @@ import java.util.Objects;
 @Table(
         name = "subscription",
         uniqueConstraints = @UniqueConstraint(
-                name = "uk_subscription_provider_ref",
-                columnNames = {"provider", "provider_reference"}
+                name = "uk_subscription_provider_subscription_id",
+                columnNames = {"provider", "provider_subscription_id"}
         ), indexes = {
+        @Index(name = "idx_subscription_external_id", columnList = "external_id"),
         @Index(name = "idx_subscription_status", columnList = "status"),
         @Index(name = "idx_subscription_customer_id", columnList = "customer_id"),
-        @Index(name = "idx_subscription_provider", columnList = "provider")
+        @Index(name = "idx_subscription_provider", columnList = "provider"),
+        @Index(name = "idx_subscription_start_at", columnList = "startAt")
 })
 public class Subscription {
 
@@ -38,9 +40,9 @@ public class Subscription {
     private Long id;
 
     @NotNull
-    @Column(unique = true)
+    @Column(name = "external_id", unique = true)
     @Size(max = 100)
-    private String publicId;
+    private String externalId;
 
     @ManyToOne
     @NotNull
@@ -71,31 +73,45 @@ public class Subscription {
 
     @NotNull
     @Size(max = 50)
-    @Column(name = "billing_type", length = 50, nullable = false)
-    private String billingType;
+    @Column(name = "payment_method", length = 50, nullable = false)
+    private String paymentMethod;
 
     @NotNull @Enumerated(EnumType.STRING)
     private Provider provider;
 
     @Size(max = 100)
-    private String providerReference;
+    @Column(name = "provider_subscription_id")
+    private String providerSubscriptionId;
 
     @CreationTimestamp
-    @NotNull
-    @Column(name = "created_at", updatable = false)
+    @Column(name = "created_at", updatable = false, nullable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @PrePersist
     @PreUpdate
     private void normalizeData() {
-        if (this.providerReference != null) {
-            this.providerReference = this.providerReference.trim();
+        this.updatedAt = LocalDateTime.now();
+        if (this.providerSubscriptionId != null) {
+            this.providerSubscriptionId = this.providerSubscriptionId.trim();
         }
         if (this.description != null) {
             this.description = this.description.trim();
         }
-        if (this.billingType != null) {
-            this.billingType = this.billingType.trim().toUpperCase();
+        if (this.paymentMethod != null) {
+            this.paymentMethod = this.paymentMethod.trim().toUpperCase();
+        }
+        if (this.amount != null && this.amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Valor da assinatura deve ser maior que zero");
+        }
+        if (this.endAt != null && this.endAt.isBefore(this.startAt)) {
+            throw new IllegalArgumentException("Data de término deve ser posterior à data de início");
         }
     }
 

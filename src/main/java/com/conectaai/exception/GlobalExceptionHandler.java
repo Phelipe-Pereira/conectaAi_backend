@@ -211,6 +211,36 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
+    @ExceptionHandler(SubscriptionNotFoundException.class)
+    public ResponseEntity<ErrorResponseDto> handleSubscriptionNotFound(SubscriptionNotFoundException exception) {
+        ErrorDetailDto errorDetail = new ErrorDetailDto(
+                "SUBSCRIPTION_NOT_FOUND",
+                exception.getMessage()
+        );
+        ErrorResponseDto errorResponse = new ErrorResponseDto(errorDetail);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    }
+
+    @ExceptionHandler(SubscriptionAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponseDto> handleSubscriptionAlreadyExists(SubscriptionAlreadyExistsException exception) {
+        ErrorDetailDto errorDetail = new ErrorDetailDto(
+                "SUBSCRIPTION_ALREADY_EXISTS",
+                exception.getMessage()
+        );
+        ErrorResponseDto errorResponse = new ErrorResponseDto(errorDetail);
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+    }
+
+    @ExceptionHandler(InvalidSubscriptionStatusTransitionException.class)
+    public ResponseEntity<ErrorResponseDto> handleInvalidSubscriptionStatusTransition(InvalidSubscriptionStatusTransitionException exception) {
+        ErrorDetailDto errorDetail = new ErrorDetailDto(
+                "INVALID_SUBSCRIPTION_STATUS_TRANSITION",
+                exception.getMessage()
+        );
+        ErrorResponseDto errorResponse = new ErrorResponseDto(errorDetail);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponseDto> handleIllegalArgument(IllegalArgumentException exception) {
         ErrorDetailDto errorDetail = new ErrorDetailDto(

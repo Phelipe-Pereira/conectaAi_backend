@@ -10,14 +10,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-public record SubscriptionResponseDto(
+public record SubscriptionSummaryDto(
         Long id,
 
         @JsonProperty("external_id")
         String externalId,
-
-        @JsonProperty("provider_subscription_id")
-        String providerSubscriptionId,
 
         Provider provider,
 
@@ -34,8 +31,6 @@ public record SubscriptionResponseDto(
         @JsonProperty("payment_method")
         String paymentMethod,
 
-        String description,
-
         @JsonProperty("start_at")
         LocalDateTime startAt,
 
@@ -43,9 +38,7 @@ public record SubscriptionResponseDto(
         LocalDateTime endAt,
 
         @JsonProperty("created_at")
-        LocalDateTime createdAt,
-
-        @JsonProperty("updated_at")
-        LocalDateTime updatedAt
+        LocalDateTime createdAt
 ) {
 }
+

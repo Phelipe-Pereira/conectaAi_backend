@@ -23,3 +23,5 @@ databaseChangeLog:
       file: classpath:db/changelog/006-add-webhook-event-fields.yml
   - include:
       file: classpath:db/changelog/009-update-payment-structure.yml
+  - include:
+      file: classpath:db/changelog/010-update-subscription-structure.yml
