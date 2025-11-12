@@ -30,7 +30,10 @@ public final class CustomerUtils {
         if (digits.chars().distinct().count() == 1) {
             return false;
         }
-        int s1 = 0, s2 = 0, w1 = 10, w2 = 11;
+        int s1 = 0;
+        int s2 = 0;
+        int w1 = 10;
+        int w2 = 11;
         for (int i = 0; i < 9; i++) {
             int n = digits.charAt(i) - '0';
             s1 += n * w1--;
@@ -56,7 +59,8 @@ public final class CustomerUtils {
         }
         int[] w1 = {5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2};
         int[] w2 = {6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2};
-        int s1 = 0, s2 = 0;
+        int s1 = 0;
+        int s2 = 0;
         for (int i = 0; i < 12; i++) {
             s1 += (digits.charAt(i) - '0') * w1[i];
         }

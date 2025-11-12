@@ -15,6 +15,8 @@ import com.conectaai.repository.PaymentRepository;
 import com.conectaai.service.customer.CustomerService;
 import com.conectaai.specification.PaymentSpecification;
 import com.conectaai.utils.PaymentUtils;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,13 +33,18 @@ import java.time.LocalDateTime;
 public class PaymentService {
 
     private static final AppLogger LOGGER = AppLogger.getLogger(PaymentService.class);
+    private static final String METHOD_CREATE_PAYMENT = "createPayment";
+    private static final String METHOD_APPLY_WEBHOOK = "applyWebhook";
+    private static final String METHOD_UPDATE_STATUS = "updateStatus";
 
     private final PaymentRepository paymentRepository;
     private final CustomerService customerService;
+    private final ObjectMapper objectMapper;
+    private final com.conectaai.adapter.factory.PaymentGatewayAdapterFactory adapterFactory;
 
     @Transactional
     public PaymentResponseDto createPayment(PaymentRequestDto paymentRequest) {
-        LOGGER.info("createPayment", "Criando pagamento para o cliente ID: {}", paymentRequest.customerId());
+        LOGGER.info(METHOD_CREATE_PAYMENT, "Criando pagamento para o cliente ID: {}", paymentRequest.customerId());
 
         validatePaymentRequest(paymentRequest);
 
@@ -47,8 +54,37 @@ public class PaymentService {
 
         validateExternalIdUniqueness(payment.getExternalId());
 
+        try {
+            com.conectaai.adapter.gateway.PaymentGatewayAdapter adapter = 
+                    adapterFactory.getAdapter(paymentRequest.provider());
+            
+            com.conectaai.adapter.gateway.GatewayPaymentResponse gatewayResponse = adapter.createPayment(
+                    customer,
+                    payment.getAmount(),
+                    payment.getCurrency().name(),
+                    payment.getPaymentMethod(),
+                    payment.getDescription(),
+                    payment.getDueDate(),
+                    payment.getExternalId()
+            );
+
+            payment.setProviderPaymentId(gatewayResponse.providerPaymentId());
+            payment.setStatus(com.conectaai.utils.GatewayStatusMapper.mapPaymentStatus(gatewayResponse.status()));
+            payment.setPaymentUrl(gatewayResponse.paymentUrl());
+            payment.setQrCode(gatewayResponse.qrCode());
+            payment.setBarCode(gatewayResponse.barCode());
+            if (gatewayResponse.paidAt() != null) {
+                payment.setPaidAt(gatewayResponse.paidAt().toLocalDateTime());
+            }
+        } catch (com.conectaai.exception.GatewayException e) {
+            LOGGER.error(METHOD_CREATE_PAYMENT, "Erro ao criar pagamento no gateway", e);
+            throw e;
+        }
+
         Payment savedPayment = paymentRepository.save(payment);
-        LOGGER.info("createPayment", "Pagamento criado com sucesso. ID: {}, ExternalID: {}", savedPayment.getId(), savedPayment.getExternalId());
+        LOGGER.info(METHOD_CREATE_PAYMENT,
+                "Pagamento criado com sucesso. ID: {}, ExternalID: {}, ProviderPaymentID: {}",
+                savedPayment.getId(), savedPayment.getExternalId(), savedPayment.getProviderPaymentId());
 
         return PaymentMapper.toResponseDto(savedPayment);
     }
@@ -100,7 +136,7 @@ public class PaymentService {
 
     @Transactional
     public PaymentResponseDto updateStatus(Long id, PaymentUpdateDto updateRequest) {
-        LOGGER.info("updateStatus", "Atualizando status do pagamento ID: {}", id);
+        LOGGER.info(METHOD_UPDATE_STATUS, "Atualizando status do pagamento ID: {}", id);
 
         Payment payment = findByIdOrThrow(id);
 
@@ -111,7 +147,9 @@ public class PaymentService {
         PaymentMapper.updateEntity(payment, updateRequest);
 
         Payment updatedPayment = paymentRepository.save(payment);
-        LOGGER.info("updateStatus", "Status do pagamento atualizado com sucesso. ID: {}, Novo Status: {}", updatedPayment.getId(), updatedPayment.getStatus());
+        LOGGER.info(METHOD_UPDATE_STATUS,
+                "Status do pagamento atualizado com sucesso. ID: {}, Novo Status: {}",
+                updatedPayment.getId(), updatedPayment.getStatus());
 
         return PaymentMapper.toResponseDto(updatedPayment);
     }
@@ -126,6 +164,17 @@ public class PaymentService {
             throw new InvalidPaymentStatusTransitionException(
                     String.format("Pagamento com status %s não pode ser cancelado", payment.getStatus())
             );
+        }
+
+        if (payment.getProviderPaymentId() != null && !payment.getProviderPaymentId().isBlank()) {
+            try {
+                com.conectaai.adapter.gateway.PaymentGatewayAdapter adapter = 
+                        adapterFactory.getAdapter(payment.getProvider());
+                adapter.cancelPayment(payment.getProviderPaymentId());
+            } catch (com.conectaai.exception.GatewayException e) {
+                LOGGER.error("cancelPayment", "Erro ao cancelar pagamento no gateway", e);
+                throw e;
+            }
         }
 
         payment.setStatus(PaymentStatus.CANCELLED);
@@ -176,5 +225,99 @@ public class PaymentService {
             );
         }
     }
+
+    @Transactional
+    public void applyWebhook(Provider provider, PaymentStatus status, String rawPayload) {
+        LOGGER.info(METHOD_APPLY_WEBHOOK, "Processando webhook de pagamento: provider={}, status={}", provider, status);
+        
+        String externalId = extractExternalId(provider, rawPayload);
+        if (externalId == null) {
+            String providerPaymentId = extractProviderPaymentId(provider, rawPayload);
+            if (providerPaymentId != null) {
+                paymentRepository.findByProviderAndProviderPaymentId(provider, providerPaymentId)
+                        .ifPresentOrElse(
+                                payment -> updatePaymentStatus(payment, status),
+                                () -> LOGGER.warn(METHOD_APPLY_WEBHOOK, 
+                                        "Pagamento não encontrado: provider={} providerPaymentId={}", 
+                                        provider, providerPaymentId)
+                        );
+            } else {
+                LOGGER.warn(METHOD_APPLY_WEBHOOK, "external_id e provider_payment_id ausentes no payload");
+            }
+            return;
+        }
+
+        paymentRepository.findByExternalId(externalId).ifPresentOrElse(
+                payment -> updatePaymentStatus(payment, status),
+                () -> LOGGER.warn(METHOD_APPLY_WEBHOOK, "Pagamento não encontrado: externalId={}", externalId)
+        );
+    }
+
+    private String extractExternalId(Provider provider, String rawPayload) {
+        try {
+            JsonNode payload = objectMapper.readTree(rawPayload);
+            return switch (provider) {
+                case STRIPE -> {
+                    String id = extractString(payload.at("/data/object/metadata/external_id"));
+                    if (id == null) {
+                        id = extractString(payload.at("/data/object/external_id"));
+                    }
+                    yield id;
+                }
+                case MERCADO_PAGO -> extractString(payload.at("/data/external_reference"));
+                case ASAAS -> {
+                    String id = extractString(payload.at("/payment/externalReference"));
+                    if (id == null) {
+                        JsonNode externalRefNode = payload.get("externalReference");
+                        id = extractString(externalRefNode);
+                    }
+                    yield id;
+                }
+            };
+        } catch (Exception e) {
+            LOGGER.warn("extractExternalId", "Erro ao extrair external_id: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    private String extractProviderPaymentId(Provider provider, String rawPayload) {
+        try {
+            JsonNode payload = objectMapper.readTree(rawPayload);
+            return switch (provider) {
+                case STRIPE -> extractString(payload.at("/data/object/id"));
+                case MERCADO_PAGO -> extractString(payload.at("/data/id"));
+                case ASAAS -> extractString(payload.at("/payment/id"));
+            };
+        } catch (Exception e) {
+            LOGGER.warn("extractProviderPaymentId", "Erro ao extrair provider_payment_id: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    private String extractString(JsonNode node) {
+        if (node == null || node.isMissingNode() || node.isNull()) {
+            return null;
+        }
+        if (node.isTextual()) {
+            return node.asText();
+        }
+        return node.asText();
+    }
+
+    private void updatePaymentStatus(com.conectaai.domain.Payment payment, PaymentStatus newStatus) {
+        if (newStatus != null && PaymentUtils.isValidStatusTransition(payment.getStatus(), newStatus)) {
+            payment.setStatus(newStatus);
+            if (newStatus == PaymentStatus.CONFIRMED || newStatus == PaymentStatus.RECEIVED) {
+                payment.setPaidAt(java.time.LocalDateTime.now());
+            }
+            paymentRepository.save(payment);
+            LOGGER.info("updatePaymentStatus", 
+                    "Pagamento {} atualizado para {}", payment.getId(), newStatus);
+        } else {
+            LOGGER.warn("updatePaymentStatus", 
+                    "Transição inválida ignorada: {} -> {}", payment.getStatus(), newStatus);
+        }
+    }
+
 }
 

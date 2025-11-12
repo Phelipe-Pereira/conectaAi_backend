@@ -27,3 +27,9 @@ databaseChangeLog:
       file: classpath:db/changelog/010-update-subscription-structure.yml
   - include:
       file: classpath:db/changelog/011-update-refund-structure.yml
+  - include:
+      file: classpath:db/changelog/012-make-webhook-endpoint-nullable.yml
+  - include:
+      file: classpath:db/changelog/013-add-provider-to-webhook-endpoint.yml
+  - include:
+      file: classpath:db/changelog/014-add-auth-token-to-webhook-endpoint.yml

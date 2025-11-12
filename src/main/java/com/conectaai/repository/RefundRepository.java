@@ -1,7 +1,6 @@
 package com.conectaai.repository;
 
 import com.conectaai.domain.Refund;
-import com.conectaai.enums.RefundStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -18,6 +17,7 @@ public interface RefundRepository extends JpaRepository<Refund, Long>, JpaSpecif
 
     boolean existsByExternalId(String externalId);
 
-    @Query("SELECT SUM(r.amount) FROM Refund r WHERE r.payment.id = :paymentId AND r.status IN ('COMPLETED', 'PROCESSING')")
+    @Query("SELECT SUM(r.amount) FROM Refund r WHERE r.payment.id = :paymentId " +
+            "AND r.status IN ('COMPLETED', 'PROCESSING')")
     BigDecimal sumRefundedAmountByPaymentId(@Param("paymentId") Long paymentId);
 }

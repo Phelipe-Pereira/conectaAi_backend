@@ -1,0 +1,68 @@
+# Build artifacts
+build/
+.gradle/
+*.jar
+*.war
+*.ear
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.classpath
+.project
+.settings/
+
+# Version control
+.git/
+.gitignore
+.gitattributes
+
+# Documentation
+*.md
+!README.md
+docs/
+
+# Test files
+src/test/
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Environment
+.env
+.env.local
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.bak
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+
+# Sonar
+.sonar/
+sonar-project.properties
+
+# Checkstyle reports
+checkstyleMain.xml
+checkstyleTest.xml
+
+# Jacoco reports
+jacocoHtml/
+*.exec
+

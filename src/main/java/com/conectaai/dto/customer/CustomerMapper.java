@@ -57,6 +57,14 @@ public class CustomerMapper {
     }
 
     public static void updateEntity(Customer customer, CustomerUpdateDto updateRequest) {
+        updateBasicInfo(customer, updateRequest);
+        updateDocumentInfo(customer, updateRequest);
+        updateContactInfo(customer, updateRequest);
+        updateAddressInfo(customer, updateRequest);
+        updateAdditionalInfo(customer, updateRequest);
+    }
+
+    private static void updateBasicInfo(Customer customer, CustomerUpdateDto updateRequest) {
         if (updateRequest.firstName() != null) {
             customer.setFirstName(updateRequest.firstName());
         }
@@ -66,6 +74,9 @@ public class CustomerMapper {
         if (updateRequest.email() != null) {
             customer.setEmail(updateRequest.email());
         }
+    }
+
+    private static void updateDocumentInfo(Customer customer, CustomerUpdateDto updateRequest) {
         if (updateRequest.cpf() != null) {
             customer.setCpf(updateRequest.cpf());
             customer.setCnpj(null);
@@ -74,9 +85,15 @@ public class CustomerMapper {
             customer.setCnpj(updateRequest.cnpj());
             customer.setCpf(null);
         }
+    }
+
+    private static void updateContactInfo(Customer customer, CustomerUpdateDto updateRequest) {
         if (updateRequest.phone() != null) {
             customer.setPhone(updateRequest.phone());
         }
+    }
+
+    private static void updateAddressInfo(Customer customer, CustomerUpdateDto updateRequest) {
         if (updateRequest.address() != null) {
             customer.setAddress(updateRequest.address());
         }
@@ -98,6 +115,9 @@ public class CustomerMapper {
         if (updateRequest.country() != null) {
             customer.setCountry(updateRequest.country());
         }
+    }
+
+    private static void updateAdditionalInfo(Customer customer, CustomerUpdateDto updateRequest) {
         if (updateRequest.birthDate() != null) {
             customer.setBirthDate(updateRequest.birthDate());
         }

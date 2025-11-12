@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -30,8 +32,7 @@ public class WebhookEvent {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "webhook_endpoint_id", nullable = false)
-    @NotNull
+    @JoinColumn(name = "webhook_endpoint_id", nullable = true)
     private WebhookEndpoint webhookEndpoint;
 
     @NotNull
@@ -43,6 +44,7 @@ public class WebhookEvent {
     private String eventType;
 
     @Column(columnDefinition = "jsonb")
+    @JdbcTypeCode(SqlTypes.JSON)
     @NotNull
     @Size(max = 10000)
     private String payload;

@@ -11,6 +11,11 @@ import java.time.LocalDateTime;
 
 public final class SubscriptionSpecification {
 
+    private static final String FIELD_AMOUNT = "amount";
+    private static final String FIELD_START_AT = "startAt";
+    private static final String FIELD_END_AT = "endAt";
+    private static final String FIELD_CREATED_AT = "createdAt";
+
     private SubscriptionSpecification() {
     }
 
@@ -65,12 +70,12 @@ public final class SubscriptionSpecification {
                 return criteriaBuilder.conjunction();
             }
             if (minAmount != null && maxAmount != null) {
-                return criteriaBuilder.between(root.get("amount"), minAmount, maxAmount);
+                return criteriaBuilder.between(root.get(FIELD_AMOUNT), minAmount, maxAmount);
             }
             if (minAmount != null) {
-                return criteriaBuilder.greaterThanOrEqualTo(root.get("amount"), minAmount);
+                return criteriaBuilder.greaterThanOrEqualTo(root.get(FIELD_AMOUNT), minAmount);
             }
-            return criteriaBuilder.lessThanOrEqualTo(root.get("amount"), maxAmount);
+            return criteriaBuilder.lessThanOrEqualTo(root.get(FIELD_AMOUNT), maxAmount);
         };
     }
 
@@ -80,12 +85,12 @@ public final class SubscriptionSpecification {
                 return criteriaBuilder.conjunction();
             }
             if (startFrom != null && startTo != null) {
-                return criteriaBuilder.between(root.get("startAt"), startFrom, startTo);
+                return criteriaBuilder.between(root.get(FIELD_START_AT), startFrom, startTo);
             }
             if (startFrom != null) {
-                return criteriaBuilder.greaterThanOrEqualTo(root.get("startAt"), startFrom);
+                return criteriaBuilder.greaterThanOrEqualTo(root.get(FIELD_START_AT), startFrom);
             }
-            return criteriaBuilder.lessThanOrEqualTo(root.get("startAt"), startTo);
+            return criteriaBuilder.lessThanOrEqualTo(root.get(FIELD_START_AT), startTo);
         };
     }
 
@@ -95,12 +100,12 @@ public final class SubscriptionSpecification {
                 return criteriaBuilder.conjunction();
             }
             if (endFrom != null && endTo != null) {
-                return criteriaBuilder.between(root.get("endAt"), endFrom, endTo);
+                return criteriaBuilder.between(root.get(FIELD_END_AT), endFrom, endTo);
             }
             if (endFrom != null) {
-                return criteriaBuilder.greaterThanOrEqualTo(root.get("endAt"), endFrom);
+                return criteriaBuilder.greaterThanOrEqualTo(root.get(FIELD_END_AT), endFrom);
             }
-            return criteriaBuilder.lessThanOrEqualTo(root.get("endAt"), endTo);
+            return criteriaBuilder.lessThanOrEqualTo(root.get(FIELD_END_AT), endTo);
         };
     }
 
@@ -110,12 +115,12 @@ public final class SubscriptionSpecification {
                 return criteriaBuilder.conjunction();
             }
             if (createdStart != null && createdEnd != null) {
-                return criteriaBuilder.between(root.get("createdAt"), createdStart, createdEnd);
+                return criteriaBuilder.between(root.get(FIELD_CREATED_AT), createdStart, createdEnd);
             }
             if (createdStart != null) {
-                return criteriaBuilder.greaterThanOrEqualTo(root.get("createdAt"), createdStart);
+                return criteriaBuilder.greaterThanOrEqualTo(root.get(FIELD_CREATED_AT), createdStart);
             }
-            return criteriaBuilder.lessThanOrEqualTo(root.get("createdAt"), createdEnd);
+            return criteriaBuilder.lessThanOrEqualTo(root.get(FIELD_CREATED_AT), createdEnd);
         };
     }
 }

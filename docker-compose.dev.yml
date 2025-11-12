@@ -1,0 +1,30 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: conectaai-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    restart: unless-stopped
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
+  app-db:
+    image: postgres:15
+    container_name: conectaai-postgres-app
+    environment:
+      POSTGRES_DB: conectaai
+      POSTGRES_USER: conectaai
+      POSTGRES_PASSWORD: conectaai
+    ports:
+      - "5433:5432"
+    volumes:
+      - app_db_data:/var/lib/postgresql/data
+
+volumes:
+  app_db_data:
+  rabbitmq_data:
+

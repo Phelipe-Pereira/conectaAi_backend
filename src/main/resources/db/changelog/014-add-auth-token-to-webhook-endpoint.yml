@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: 014-add-auth-token-to-webhook-endpoint
+      author: system
+      changes:
+        - addColumn:
+            tableName: webhook_endpoint
+            columns:
+              - column:
+                  name: auth_token
+                  type: VARCHAR(500)
+                  constraints:
+                    nullable: true
+

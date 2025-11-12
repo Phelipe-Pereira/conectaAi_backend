@@ -11,6 +11,11 @@ import java.time.LocalDateTime;
 
 public final class PaymentSpecification {
 
+    private static final String FIELD_AMOUNT = "amount";
+    private static final String FIELD_CREATED_AT = "createdAt";
+    private static final String FIELD_DUE_DATE = "dueDate";
+    private static final String FIELD_PAID_AT = "paidAt";
+
     private PaymentSpecification() {
         throw new UnsupportedOperationException("Utility class");
     }
@@ -66,12 +71,12 @@ public final class PaymentSpecification {
                 return criteriaBuilder.conjunction();
             }
             if (minAmount != null && maxAmount != null) {
-                return criteriaBuilder.between(root.get("amount"), minAmount, maxAmount);
+                return criteriaBuilder.between(root.get(FIELD_AMOUNT), minAmount, maxAmount);
             }
             if (minAmount != null) {
-                return criteriaBuilder.greaterThanOrEqualTo(root.get("amount"), minAmount);
+                return criteriaBuilder.greaterThanOrEqualTo(root.get(FIELD_AMOUNT), minAmount);
             }
-            return criteriaBuilder.lessThanOrEqualTo(root.get("amount"), maxAmount);
+            return criteriaBuilder.lessThanOrEqualTo(root.get(FIELD_AMOUNT), maxAmount);
         };
     }
 
@@ -81,12 +86,12 @@ public final class PaymentSpecification {
                 return criteriaBuilder.conjunction();
             }
             if (startDate != null && endDate != null) {
-                return criteriaBuilder.between(root.get("createdAt"), startDate, endDate);
+                return criteriaBuilder.between(root.get(FIELD_CREATED_AT), startDate, endDate);
             }
             if (startDate != null) {
-                return criteriaBuilder.greaterThanOrEqualTo(root.get("createdAt"), startDate);
+                return criteriaBuilder.greaterThanOrEqualTo(root.get(FIELD_CREATED_AT), startDate);
             }
-            return criteriaBuilder.lessThanOrEqualTo(root.get("createdAt"), endDate);
+            return criteriaBuilder.lessThanOrEqualTo(root.get(FIELD_CREATED_AT), endDate);
         };
     }
 
@@ -96,12 +101,12 @@ public final class PaymentSpecification {
                 return criteriaBuilder.conjunction();
             }
             if (startDate != null && endDate != null) {
-                return criteriaBuilder.between(root.get("dueDate"), startDate, endDate);
+                return criteriaBuilder.between(root.get(FIELD_DUE_DATE), startDate, endDate);
             }
             if (startDate != null) {
-                return criteriaBuilder.greaterThanOrEqualTo(root.get("dueDate"), startDate);
+                return criteriaBuilder.greaterThanOrEqualTo(root.get(FIELD_DUE_DATE), startDate);
             }
-            return criteriaBuilder.lessThanOrEqualTo(root.get("dueDate"), endDate);
+            return criteriaBuilder.lessThanOrEqualTo(root.get(FIELD_DUE_DATE), endDate);
         };
     }
 
@@ -111,12 +116,12 @@ public final class PaymentSpecification {
                 return criteriaBuilder.conjunction();
             }
             if (startDate != null && endDate != null) {
-                return criteriaBuilder.between(root.get("paidAt"), startDate, endDate);
+                return criteriaBuilder.between(root.get(FIELD_PAID_AT), startDate, endDate);
             }
             if (startDate != null) {
-                return criteriaBuilder.greaterThanOrEqualTo(root.get("paidAt"), startDate);
+                return criteriaBuilder.greaterThanOrEqualTo(root.get(FIELD_PAID_AT), startDate);
             }
-            return criteriaBuilder.lessThanOrEqualTo(root.get("paidAt"), endDate);
+            return criteriaBuilder.lessThanOrEqualTo(root.get(FIELD_PAID_AT), endDate);
         };
     }
 }

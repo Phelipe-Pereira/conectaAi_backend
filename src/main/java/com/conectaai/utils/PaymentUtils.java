@@ -13,11 +13,13 @@ import java.util.Set;
 public final class PaymentUtils {
 
     private static final BigDecimal MINIMUM_AMOUNT = new BigDecimal("5.00");
+    private static final String PAYMENT_METHOD_CREDIT_CARD = "CREDIT_CARD";
+    private static final String PAYMENT_METHOD_DEBIT_CARD = "DEBIT_CARD";
 
     private static final Map<Provider, Set<String>> SUPPORTED_PAYMENT_METHODS = Map.of(
-            Provider.ASAAS, Set.of("PIX", "BOLETO", "CREDIT_CARD", "DEBIT_CARD"),
-            Provider.STRIPE, Set.of("CREDIT_CARD", "DEBIT_CARD", "PIX"),
-            Provider.MERCADO_PAGO, Set.of("PIX", "BOLETO", "CREDIT_CARD", "DEBIT_CARD")
+            Provider.ASAAS, Set.of("PIX", "BOLETO", PAYMENT_METHOD_CREDIT_CARD, PAYMENT_METHOD_DEBIT_CARD),
+            Provider.STRIPE, Set.of(PAYMENT_METHOD_CREDIT_CARD, PAYMENT_METHOD_DEBIT_CARD, "PIX"),
+            Provider.MERCADO_PAGO, Set.of("PIX", "BOLETO", PAYMENT_METHOD_CREDIT_CARD, PAYMENT_METHOD_DEBIT_CARD)
     );
 
     private static final Map<Provider, Set<Currency>> SUPPORTED_CURRENCIES = Map.of(

@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 012-make-webhook-endpoint-nullable
+      author: system
+      changes:
+        - sql:
+            sql: ALTER TABLE webhook_event ALTER COLUMN webhook_endpoint_id DROP NOT NULL
+

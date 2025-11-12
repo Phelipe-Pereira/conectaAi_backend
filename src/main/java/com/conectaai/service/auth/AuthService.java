@@ -52,10 +52,12 @@ public class AuthService {
         boolean emailExists = userRepository.existsByEmail(registerRequest.email());
         if (usernameExists || emailExists) {
             if (usernameExists) {
-                LOGGER.warn("validateUserDoesNotExist", "Tentativa de registro com username já em uso: {}", registerRequest.username());
+                LOGGER.warn("validateUserDoesNotExist",
+                        "Tentativa de registro com username já em uso: {}", registerRequest.username());
             }
             if (emailExists) {
-                LOGGER.warn("validateUserDoesNotExist", "Tentativa de registro com email já em uso: {}", registerRequest.email());
+                LOGGER.warn("validateUserDoesNotExist",
+                        "Tentativa de registro com email já em uso: {}", registerRequest.email());
             }
             throw new UserAlreadyExistsException("Username ou email já estão em uso");
         }
@@ -142,7 +144,9 @@ public class AuthService {
             LOGGER.info("register", "Usuário registrado com sucesso: {}", registerRequest.username());
             return buildAuthResponse(user, accessToken, refreshToken.getToken());
         } catch (DataIntegrityViolationException e) {
-            LOGGER.warn("register", "Tentativa de registro com username/email duplicado: {} / {}", registerRequest.username(), registerRequest.email());
+            LOGGER.warn("register",
+                    "Tentativa de registro com username/email duplicado: {} / {}",
+                    registerRequest.username(), registerRequest.email());
             throw new UserAlreadyExistsException("Username ou email já estão em uso");
         }
     }
@@ -181,7 +185,8 @@ public class AuthService {
     public void forgotPassword(ForgotPasswordRequestDto forgotPasswordRequest) {
         var userOptional = userRepository.findByEmail(forgotPasswordRequest.email());
         if (userOptional.isEmpty()) {
-            LOGGER.warn("forgotPassword", "Tentativa de recuperação para email não cadastrado: {}", forgotPasswordRequest.email());
+            LOGGER.warn("forgotPassword",
+                    "Tentativa de recuperação para email não cadastrado: {}", forgotPasswordRequest.email());
             return;
         }
         User user = userOptional.get();
@@ -252,5 +257,20 @@ public class AuthService {
                 roleNames,
                 user.getCreatedAt()
         );
+    }
+
+    public User getUserFromToken(String token) {
+        if (token == null || token.isBlank()) {
+            throw new InvalidCredentialsException("Token não fornecido");
+        }
+        String cleanToken = token.startsWith("Bearer ") ? token.substring(7) : token;
+        if (!jwtService.isTokenValid(cleanToken)) {
+            throw new InvalidCredentialsException("Token inválido");
+        }
+        String userId = jwtService.getUserIdFromToken(cleanToken);
+        User user = userRepository.findByIdWithRoles(Long.valueOf(userId))
+                .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));
+        verifyUserIsActive(user);
+        return user;
     }
 }

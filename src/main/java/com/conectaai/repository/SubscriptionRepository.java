@@ -9,11 +9,13 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface SubscriptionRepository extends JpaRepository<Subscription, Long>, JpaSpecificationExecutor<Subscription> {
+public interface SubscriptionRepository extends JpaRepository<Subscription, Long>,
+        JpaSpecificationExecutor<Subscription> {
 
     Optional<Subscription> findByExternalId(String externalId);
 
-    Optional<Subscription> findByProviderAndProviderSubscriptionId(Provider provider, String providerSubscriptionId);
+    Optional<Subscription> findByProviderAndProviderSubscriptionId(
+            Provider provider, String providerSubscriptionId);
 
     boolean existsByExternalId(String externalId);
 }

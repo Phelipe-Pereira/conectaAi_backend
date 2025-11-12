@@ -1,5 +1,6 @@
 package com.conectaai.domain;
 
+import com.conectaai.enums.Provider;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -20,10 +21,18 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "webhook_endpoint", indexes = {
+@Table(name = "webhook_endpoint", 
+        uniqueConstraints = @UniqueConstraint(
+                name = "uk_webhook_endpoint_user_provider_endpoint_id",
+                columnNames = {"user_id", "provider", "provider_endpoint_id"}
+        ),
+        indexes = {
         @Index(name = "idx_webhook_endpoint_active", columnList = "active"),
         @Index(name = "idx_webhook_endpoint_user", columnList = "user_id"),
-        @Index(name = "idx_webhook_endpoint_created_at", columnList = "createdAt")
+        @Index(name = "idx_webhook_endpoint_created_at", columnList = "createdAt"),
+        @Index(name = "idx_webhook_endpoint_provider", columnList = "provider"),
+        @Index(name = "idx_webhook_endpoint_provider_endpoint_id", columnList = "provider_endpoint_id"),
+        @Index(name = "idx_webhook_endpoint_user_provider", columnList = "user_id,provider")
 })
 public class WebhookEndpoint {
 
@@ -37,6 +46,15 @@ public class WebhookEndpoint {
     @NotNull
     private User user;
 
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private Provider provider;
+
+    @Size(max = 100)
+    @Column(name = "provider_endpoint_id")
+    private String providerEndpointId;
+
     @Column(nullable = false)
     @NotNull
     @Size(max = 500)
@@ -46,6 +64,10 @@ public class WebhookEndpoint {
     @NotNull
     @Size(max = 100)
     private String secret;
+
+    @Size(max = 500)
+    @Column(name = "auth_token", length = 500)
+    private String authToken;
 
     @Column(columnDefinition = "jsonb", nullable = false)
     @JdbcTypeCode(SqlTypes.JSON)

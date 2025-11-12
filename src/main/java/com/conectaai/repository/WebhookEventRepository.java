@@ -62,10 +62,13 @@ public interface WebhookEventRepository extends JpaRepository<WebhookEvent, Long
     @Query("DELETE FROM WebhookEvent w WHERE w.processed = true AND w.receivedAt < :date")
     void deleteProcessedEventsOlderThan(@Param("date") LocalDateTime date);
 
-    @Query("SELECT w FROM WebhookEvent w WHERE w.provider = :provider "
-            + "AND w.eventType = :eventType AND w.payload = :payload ORDER BY w.receivedAt DESC")
+    @Query(value = "SELECT * FROM webhook_event WHERE provider = :providerName "
+            + "AND event_type = :eventType AND payload = CAST(:payload AS jsonb) ORDER BY received_at DESC",
+            nativeQuery = true)
     List<WebhookEvent> findDuplicateEvents(
-            @Param("provider") Provider provider,
+            @Param("providerName") String providerName,
             @Param("eventType") String eventType,
             @Param("payload") String payload);
+
+    boolean existsByProviderAndExternalId(Provider provider, String externalId);
 }

@@ -16,7 +16,7 @@ Simplificar a integração com diferentes gateways de pagamento através de uma 
 ## 🏗️ Arquitetura
 
 ### **Stack Tecnológica**
-- **Java 20** - Linguagem principal
+- **Java 21** - Linguagem principal
 - **Spring Boot 3.5.5** - Framework web
 - **PostgreSQL 15** - Banco de dados principal
 - **RabbitMQ** - Mensageria assíncrona
@@ -51,7 +51,7 @@ Customer (1:N) Subscription
 ## 🚀 Configuração do Ambiente
 
 ### **Pré-requisitos**
-- Java 20+
+- Java 21+
 - Docker & Docker Compose
 - PostgreSQL 15
 - RabbitMQ
@@ -142,7 +142,7 @@ Os tokens são configurados via variáveis de ambiente para maior segurança:
 
 ---
 
-## 🧪 Testes
+## 🧪 Testes e Qualidade
 
 ### **Executar Testes**
 ```bash
@@ -157,6 +157,16 @@ Os tokens são configurados via variáveis de ambiente para maior segurança:
 ```bash
 ./gradlew jacocoTestReport
 ```
+
+### **Ferramentas de Qualidade**
+- **JUnit** - Testes unitários e de integração
+- **JaCoCo** - Cobertura de código (mínimo 70%)
+- **Checkstyle** - Análise de estilo de código
+- **SpotBugs + FindSecBugs** - Análise de bugs e vulnerabilidades de segurança
+- **OWASP Dependency Check** - Análise de vulnerabilidades em dependências
+- **SonarQube** - Análise estática completa
+
+Para mais detalhes, consulte [QUALITY_TOOLS.md](QUALITY_TOOLS.md)
 
 ---
 

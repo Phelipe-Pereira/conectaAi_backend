@@ -24,6 +24,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    private static final String ROLE_ADMIN = "ADMIN";
+    private static final String ROLE_USER = "USER";
+
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
@@ -42,14 +45,16 @@ public class SecurityConfig {
                                 "/api/v1/auth/forgot-password",
                                 "/api/v1/auth/reset-password"
                         ).permitAll()
+                        .requestMatchers("/api/v1/webhooks/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/health", "/actuator/health").permitAll()
-                        .requestMatchers("/api/v1/auth/change-password", "/api/v1/auth/me", "/api/v1/auth/logout").authenticated()
-                        .requestMatchers("/api/v1/customers/**").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers("/api/v1/payments/**").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers("/api/v1/subscriptions/**").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers("/api/v1/refunds/**").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/v1/users/**").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("/api/v1/auth/change-password", "/api/v1/auth/me",
+                                "/api/v1/auth/logout").authenticated()
+                        .requestMatchers("/api/v1/customers/**").hasAnyRole(ROLE_USER, ROLE_ADMIN)
+                        .requestMatchers("/api/v1/payments/**").hasAnyRole(ROLE_USER, ROLE_ADMIN)
+                        .requestMatchers("/api/v1/subscriptions/**").hasAnyRole(ROLE_USER, ROLE_ADMIN)
+                        .requestMatchers("/api/v1/refunds/**").hasAnyRole(ROLE_USER, ROLE_ADMIN)
+                        .requestMatchers("/api/v1/admin/**").hasRole(ROLE_ADMIN)
+                        .requestMatchers("/api/v1/users/**").hasAnyRole(ROLE_USER, ROLE_ADMIN)
                         .anyRequest().authenticated()
                 )
                 .logout(lo -> lo

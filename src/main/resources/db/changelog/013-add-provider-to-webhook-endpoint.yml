@@ -1,0 +1,48 @@
+databaseChangeLog:
+  - changeSet:
+      id: 013-add-provider-to-webhook-endpoint
+      author: system
+      changes:
+        - addColumn:
+            tableName: webhook_endpoint
+            columns:
+              - column:
+                  name: provider
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+                    defaultValueString: 'ASAAS'
+              - column:
+                  name: provider_endpoint_id
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: true
+        
+        - createIndex:
+            indexName: idx_webhook_endpoint_provider
+            tableName: webhook_endpoint
+            columns:
+              - column:
+                  name: provider
+        
+        - createIndex:
+            indexName: idx_webhook_endpoint_provider_endpoint_id
+            tableName: webhook_endpoint
+            columns:
+              - column:
+                  name: provider_endpoint_id
+        
+        - createIndex:
+            indexName: idx_webhook_endpoint_user_provider
+            tableName: webhook_endpoint
+            columns:
+              - column:
+                  name: user_id
+              - column:
+                  name: provider
+        
+        - addUniqueConstraint:
+            tableName: webhook_endpoint
+            columnNames: user_id, provider, provider_endpoint_id
+            constraintName: uk_webhook_endpoint_user_provider_endpoint_id
+

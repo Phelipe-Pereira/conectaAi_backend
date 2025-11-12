@@ -32,22 +32,51 @@ import java.time.LocalDateTime;
 public class RefundService {
 
     private static final AppLogger LOGGER = AppLogger.getLogger(RefundService.class);
+    private static final String METHOD_CREATE_REFUND = "createRefund";
+    private static final String METHOD_APPLY_WEBHOOK = "applyWebhook";
+    private static final String METHOD_UPDATE_STATUS = "updateStatus";
 
     private final RefundRepository refundRepository;
     private final PaymentRepository paymentRepository;
+    private final com.conectaai.adapter.factory.RefundGatewayAdapterFactory adapterFactory;
 
     @Transactional
     public RefundResponseDto createRefund(RefundRequestDto refundRequest) {
-        LOGGER.info("createRefund", "Iniciando criação de reembolso para payment {}", refundRequest.paymentId());
+        LOGGER.info(METHOD_CREATE_REFUND, "Iniciando criação de reembolso para payment {}", refundRequest.paymentId());
 
         Payment payment = findPaymentByIdOrThrow(refundRequest.paymentId());
 
         validateRefundRequest(refundRequest, payment);
 
         Refund refund = RefundMapper.toEntity(refundRequest, payment);
+
+        if (payment.getProviderPaymentId() != null && !payment.getProviderPaymentId().isBlank()) {
+            try {
+                com.conectaai.adapter.gateway.RefundGatewayAdapter adapter = 
+                        adapterFactory.getAdapter(payment.getProvider());
+                
+                com.conectaai.adapter.gateway.GatewayRefundResponse gatewayResponse = adapter.createRefund(
+                        payment,
+                        refund.getAmount(),
+                        refund.getReason(),
+                        refund.getExternalId()
+                );
+
+                refund.setProviderRefundId(gatewayResponse.providerRefundId());
+                refund.setStatus(com.conectaai.utils.GatewayStatusMapper.mapRefundStatus(gatewayResponse.status()));
+                if (gatewayResponse.processedAt() != null) {
+                    refund.setProcessedAt(gatewayResponse.processedAt().toLocalDateTime());
+                }
+            } catch (com.conectaai.exception.GatewayException e) {
+                LOGGER.error(METHOD_CREATE_REFUND, "Erro ao criar reembolso no gateway", e);
+                throw e;
+            }
+        }
+
         Refund savedRefund = refundRepository.save(refund);
 
-        LOGGER.info("createRefund", "Reembolso criado com sucesso. ID: {}", savedRefund.getId());
+        LOGGER.info(METHOD_CREATE_REFUND, "Reembolso criado com sucesso. ID: {}, ProviderRefundID: {}", 
+                savedRefund.getId(), savedRefund.getProviderRefundId());
         return RefundMapper.toResponseDto(savedRefund);
     }
 
@@ -94,7 +123,7 @@ public class RefundService {
 
     @Transactional
     public RefundResponseDto updateStatus(Long id, RefundUpdateDto updateRequest) {
-        LOGGER.info("updateStatus", "Atualizando status do reembolso ID: {}", id);
+        LOGGER.info(METHOD_UPDATE_STATUS, "Atualizando status do reembolso ID: {}", id);
         Refund refund = findByIdOrThrow(id);
 
         if (updateRequest.status() != null) {
@@ -105,7 +134,7 @@ public class RefundService {
         RefundMapper.updateEntity(refund, updateRequest);
         Refund updatedRefund = refundRepository.save(refund);
 
-        LOGGER.info("updateStatus", "Status do reembolso ID {} atualizado para {}", id, updatedRefund.getStatus());
+        LOGGER.info(METHOD_UPDATE_STATUS, "Status do reembolso ID {} atualizado para {}", id, updatedRefund.getStatus());
         return RefundMapper.toResponseDto(updatedRefund);
     }
 
@@ -115,7 +144,8 @@ public class RefundService {
         Refund refund = findByIdOrThrow(id);
 
         if (!RefundUtils.isCancellable(refund.getStatus())) {
-            throw new IllegalArgumentException("Reembolso com status " + refund.getStatus() + " não pode ser cancelado.");
+            throw new IllegalArgumentException(
+                    "Reembolso com status " + refund.getStatus() + " não pode ser cancelado.");
         }
 
         refund.setStatus(RefundStatus.CANCELLED);
@@ -139,7 +169,8 @@ public class RefundService {
         }
 
         if (!RefundUtils.isPaymentRefundable(payment.getStatus())) {
-            throw new PaymentNotRefundableException("Pagamento com status " + payment.getStatus() + " não pode ser reembolsado");
+            throw new PaymentNotRefundableException(
+                    "Pagamento com status " + payment.getStatus() + " não pode ser reembolsado");
         }
 
         BigDecimal alreadyRefunded = refundRepository.sumRefundedAmountByPaymentId(payment.getId());
@@ -159,8 +190,14 @@ public class RefundService {
 
     private void validateStatusTransition(RefundStatus currentStatus, RefundStatus newStatus) {
         if (!RefundUtils.isValidStatusTransition(currentStatus, newStatus)) {
-            throw new InvalidRefundStatusTransitionException("Transição de status inválida de " + currentStatus + " para " + newStatus);
+            throw new InvalidRefundStatusTransitionException(
+                    "Transição de status inválida de " + currentStatus + " para " + newStatus);
         }
+    }
+
+    @Transactional
+    public void applyWebhook(com.conectaai.enums.Provider provider, String eventType, String rawPayload) {
+        LOGGER.info(METHOD_APPLY_WEBHOOK, "Webhook de refund recebido: provider={}, event={}", provider, eventType);
     }
 }
 

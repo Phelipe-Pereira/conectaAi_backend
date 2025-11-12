@@ -162,7 +162,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(InvalidPaymentStatusTransitionException.class)
-    public ResponseEntity<ErrorResponseDto> handleInvalidPaymentStatusTransition(InvalidPaymentStatusTransitionException exception) {
+    public ResponseEntity<ErrorResponseDto> handleInvalidPaymentStatusTransition(
+            InvalidPaymentStatusTransitionException exception) {
         ErrorDetailDto errorDetail = new ErrorDetailDto(
                 "INVALID_STATUS_TRANSITION",
                 exception.getMessage()
@@ -172,7 +173,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(UnsupportedPaymentMethodException.class)
-    public ResponseEntity<ErrorResponseDto> handleUnsupportedPaymentMethod(UnsupportedPaymentMethodException exception) {
+    public ResponseEntity<ErrorResponseDto> handleUnsupportedPaymentMethod(
+            UnsupportedPaymentMethodException exception) {
         ErrorDetailDto errorDetail = new ErrorDetailDto(
                 "UNSUPPORTED_PAYMENT_METHOD",
                 exception.getMessage()
@@ -222,7 +224,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(SubscriptionAlreadyExistsException.class)
-    public ResponseEntity<ErrorResponseDto> handleSubscriptionAlreadyExists(SubscriptionAlreadyExistsException exception) {
+    public ResponseEntity<ErrorResponseDto> handleSubscriptionAlreadyExists(
+            SubscriptionAlreadyExistsException exception) {
         ErrorDetailDto errorDetail = new ErrorDetailDto(
                 "SUBSCRIPTION_ALREADY_EXISTS",
                 exception.getMessage()
@@ -232,7 +235,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(InvalidSubscriptionStatusTransitionException.class)
-    public ResponseEntity<ErrorResponseDto> handleInvalidSubscriptionStatusTransition(InvalidSubscriptionStatusTransitionException exception) {
+    public ResponseEntity<ErrorResponseDto> handleInvalidSubscriptionStatusTransition(
+            InvalidSubscriptionStatusTransitionException exception) {
         ErrorDetailDto errorDetail = new ErrorDetailDto(
                 "INVALID_SUBSCRIPTION_STATUS_TRANSITION",
                 exception.getMessage()
@@ -262,7 +266,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(InvalidRefundStatusTransitionException.class)
-    public ResponseEntity<ErrorResponseDto> handleInvalidRefundStatusTransition(InvalidRefundStatusTransitionException exception) {
+    public ResponseEntity<ErrorResponseDto> handleInvalidRefundStatusTransition(
+            InvalidRefundStatusTransitionException exception) {
         ErrorDetailDto errorDetail = new ErrorDetailDto(
                 "INVALID_REFUND_STATUS_TRANSITION",
                 exception.getMessage()
@@ -272,7 +277,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(InsufficientRefundableAmountException.class)
-    public ResponseEntity<ErrorResponseDto> handleInsufficientRefundableAmount(InsufficientRefundableAmountException exception) {
+    public ResponseEntity<ErrorResponseDto> handleInsufficientRefundableAmount(
+            InsufficientRefundableAmountException exception) {
         ErrorDetailDto errorDetail = new ErrorDetailDto(
                 "INSUFFICIENT_REFUNDABLE_AMOUNT",
                 exception.getMessage()
@@ -333,7 +339,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponseDto> handleGenericException(Exception exception) {
-        LOGGER.error("handleGenericException", "Erro inesperado: {} - Mensagem: {}", exception.getClass().getName(), exception.getMessage());
+        LOGGER.error("handleGenericException",
+                "Erro inesperado: {} - Mensagem: {}", exception.getClass().getName(), exception.getMessage());
         LOGGER.error("handleGenericException", "Stack trace completo:", exception);
         
         ErrorDetailDto errorDetail = new ErrorDetailDto(

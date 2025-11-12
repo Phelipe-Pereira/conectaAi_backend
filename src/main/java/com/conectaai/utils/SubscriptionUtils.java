@@ -13,21 +13,31 @@ public final class SubscriptionUtils {
     }
 
     public static final BigDecimal MINIMUM_AMOUNT = new BigDecimal("5.00");
+    private static final String PAYMENT_METHOD_CREDIT_CARD = "CREDIT_CARD";
+    private static final String PAYMENT_METHOD_DEBIT_CARD = "DEBIT_CARD";
 
     private static final Map<Provider, Set<String>> SUPPORTED_PAYMENT_METHODS = Map.of(
-            Provider.ASAAS, Set.of("BOLETO", "CREDIT_CARD", "DEBIT_CARD", "PIX"),
-            Provider.STRIPE, Set.of("CARD", "CREDIT_CARD", "DEBIT_CARD"),
-            Provider.MERCADO_PAGO, Set.of("CREDIT_CARD", "DEBIT_CARD")
+            Provider.ASAAS, Set.of("BOLETO", PAYMENT_METHOD_CREDIT_CARD, PAYMENT_METHOD_DEBIT_CARD, "PIX"),
+            Provider.STRIPE, Set.of("CARD", PAYMENT_METHOD_CREDIT_CARD, PAYMENT_METHOD_DEBIT_CARD),
+            Provider.MERCADO_PAGO, Set.of(PAYMENT_METHOD_CREDIT_CARD, PAYMENT_METHOD_DEBIT_CARD)
     );
 
     private static final Map<SubscriptionStatus, Set<SubscriptionStatus>> VALID_STATUS_TRANSITIONS = Map.of(
-            SubscriptionStatus.PENDING, Set.of(SubscriptionStatus.ACTIVE, SubscriptionStatus.INCOMPLETE, SubscriptionStatus.CANCELLED),
-            SubscriptionStatus.INCOMPLETE, Set.of(SubscriptionStatus.ACTIVE, SubscriptionStatus.INCOMPLETE_EXPIRED, SubscriptionStatus.CANCELLED),
-            SubscriptionStatus.TRIALING, Set.of(SubscriptionStatus.ACTIVE, SubscriptionStatus.CANCELLED, SubscriptionStatus.UNPAID),
-            SubscriptionStatus.ACTIVE, Set.of(SubscriptionStatus.PAST_DUE, SubscriptionStatus.PAUSED, SubscriptionStatus.CANCELLED, SubscriptionStatus.EXPIRED),
-            SubscriptionStatus.PAST_DUE, Set.of(SubscriptionStatus.ACTIVE, SubscriptionStatus.CANCELLED, SubscriptionStatus.UNPAID),
-            SubscriptionStatus.PAUSED, Set.of(SubscriptionStatus.ACTIVE, SubscriptionStatus.CANCELLED),
-            SubscriptionStatus.UNPAID, Set.of(SubscriptionStatus.ACTIVE, SubscriptionStatus.CANCELLED)
+            SubscriptionStatus.PENDING,
+            Set.of(SubscriptionStatus.ACTIVE, SubscriptionStatus.INCOMPLETE, SubscriptionStatus.CANCELLED),
+            SubscriptionStatus.INCOMPLETE,
+            Set.of(SubscriptionStatus.ACTIVE, SubscriptionStatus.INCOMPLETE_EXPIRED, SubscriptionStatus.CANCELLED),
+            SubscriptionStatus.TRIALING,
+            Set.of(SubscriptionStatus.ACTIVE, SubscriptionStatus.CANCELLED, SubscriptionStatus.UNPAID),
+            SubscriptionStatus.ACTIVE,
+            Set.of(SubscriptionStatus.PAST_DUE, SubscriptionStatus.PAUSED,
+                    SubscriptionStatus.CANCELLED, SubscriptionStatus.EXPIRED),
+            SubscriptionStatus.PAST_DUE,
+            Set.of(SubscriptionStatus.ACTIVE, SubscriptionStatus.CANCELLED, SubscriptionStatus.UNPAID),
+            SubscriptionStatus.PAUSED,
+            Set.of(SubscriptionStatus.ACTIVE, SubscriptionStatus.CANCELLED),
+            SubscriptionStatus.UNPAID,
+            Set.of(SubscriptionStatus.ACTIVE, SubscriptionStatus.CANCELLED)
     );
 
     private static final Set<SubscriptionStatus> CANCELLABLE_STATUSES = Set.of(
