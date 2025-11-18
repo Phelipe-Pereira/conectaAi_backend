@@ -47,6 +47,9 @@ public record CustomerResponseDto(
         @JsonProperty("company_name")
         String companyName,
         
+        @JsonProperty("provider_customer_id")
+        String providerCustomerId,
+        
         Boolean active,
         
         @JsonProperty("created_at")

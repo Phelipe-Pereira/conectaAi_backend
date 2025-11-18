@@ -38,6 +38,10 @@ public class Customer {
     @Column(name = "external_id", unique = true)
     private String externalId;
 
+    @Size(max = 100)
+    @Column(name = "provider_customer_id")
+    private String providerCustomerId;
+
     @NotNull
     @Size(min = 2, max = 100)
     private String firstName;

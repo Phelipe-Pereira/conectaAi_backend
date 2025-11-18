@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: 015-add-provider-customer-id
+      author: lipe
+      changes:
+        - addColumn:
+            tableName: customer
+            columns:
+              - column:
+                  name: provider_customer_id
+                  type: VARCHAR(100)
+                  remarks: "ID do customer no gateway de pagamento (Asaas, Stripe, etc)"
+

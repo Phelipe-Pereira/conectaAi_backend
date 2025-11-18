@@ -3,6 +3,8 @@ package com.conectaai.logger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.regex.Matcher;
+
 public final class AppLogger {
     
     private static final String LOG_FORMAT = "{}.{} >> {}";
@@ -56,7 +58,9 @@ public final class AppLogger {
         }
         String result = message;
         for (Object arg : args) {
-            result = result.replaceFirst("\\{}", arg != null ? arg.toString() : "null");
+            String replacement = arg != null ? arg.toString() : "null";
+            replacement = Matcher.quoteReplacement(replacement);
+            result = result.replaceFirst("\\{}", replacement);
         }
         return result;
     }

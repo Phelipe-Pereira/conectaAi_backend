@@ -1,11 +1,15 @@
 package com.conectaai.dto.customer;
 
+import com.conectaai.enums.Provider;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.*;
 
 import java.time.LocalDate;
 
 public record CustomerRequestDto(
+
+        @NotNull(message = "Provider é obrigatório")
+        Provider provider,
 
         @NotBlank(message = "Primeiro nome é obrigatório")
         @Size(min = 2, max = 100, message = "Primeiro nome deve ter entre 2 e 100 caracteres")

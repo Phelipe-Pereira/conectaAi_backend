@@ -1,12 +1,15 @@
 package com.conectaai.service.customer;
 
+import com.conectaai.adapter.factory.CustomerGatewayAdapterFactory;
 import com.conectaai.domain.Customer;
 import com.conectaai.dto.customer.CustomerMapper;
 import com.conectaai.dto.customer.CustomerRequestDto;
 import com.conectaai.dto.customer.CustomerResponseDto;
 import com.conectaai.dto.customer.CustomerUpdateDto;
+import com.conectaai.enums.Provider;
 import com.conectaai.exception.CustomerAlreadyExistsException;
 import com.conectaai.exception.CustomerNotFoundException;
+import com.conectaai.logger.AppLogger;
 import com.conectaai.repository.CustomerRepository;
 import com.conectaai.specification.CustomerSpecification;
 import com.conectaai.utils.DataNormalizer;
@@ -21,7 +24,11 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class CustomerService {
 
+    private static final AppLogger LOGGER = AppLogger.getLogger(CustomerService.class);
+    private static final String METHOD_CREATE_CUSTOMER = "createCustomer";
+
     private final CustomerRepository customerRepository;
+    private final CustomerGatewayAdapterFactory customerAdapterFactory;
 
     @Transactional
     public CustomerResponseDto createCustomer(CustomerRequestDto customerRequest) {
@@ -30,7 +37,44 @@ public class CustomerService {
 
         Customer customer = CustomerMapper.toEntity(customerRequest);
         Customer savedCustomer = customerRepository.save(customer);
-        return CustomerMapper.toResponseDto(savedCustomer);
+        LOGGER.info(METHOD_CREATE_CUSTOMER, "Customer salvo localmente com ID: {}", savedCustomer.getId());
+        
+        try {
+            LOGGER.info(METHOD_CREATE_CUSTOMER, "Tentando criar customer no gateway: {}", customerRequest.provider());
+            createCustomerInGateway(savedCustomer, customerRequest.provider());
+            LOGGER.info(METHOD_CREATE_CUSTOMER, "Criação no gateway concluída com sucesso");
+        } catch (Exception e) {
+            LOGGER.error(METHOD_CREATE_CUSTOMER, 
+                    "Erro ao criar customer no gateway {}: {} - Exception: {}", 
+                    customerRequest.provider(), e.getMessage(), e.getClass().getName(), e);
+        }
+        
+        Customer updatedCustomer = customerRepository.findById(savedCustomer.getId())
+                .orElse(savedCustomer);
+        
+        return CustomerMapper.toResponseDto(updatedCustomer);
+    }
+
+    private void createCustomerInGateway(Customer customer, Provider provider) {
+        LOGGER.info(METHOD_CREATE_CUSTOMER, "Iniciando criação no gateway: provider={}, customerId={}", 
+                provider, customer.getId());
+        try {
+            LOGGER.info(METHOD_CREATE_CUSTOMER, "Obtendo adapter para provider: {}", provider);
+            var adapter = customerAdapterFactory.getAdapter(provider);
+            LOGGER.info(METHOD_CREATE_CUSTOMER, "Adapter obtido com sucesso, chamando createCustomer");
+            String providerCustomerId = adapter.createCustomer(customer);
+            LOGGER.info(METHOD_CREATE_CUSTOMER, "ProviderCustomerId recebido: {}", providerCustomerId);
+            customer.setProviderCustomerId(providerCustomerId);
+            customerRepository.save(customer);
+            LOGGER.info(METHOD_CREATE_CUSTOMER, 
+                    "Customer criado no gateway {} com sucesso: providerCustomerId={}", 
+                    provider, providerCustomerId);
+        } catch (Exception e) {
+            LOGGER.error(METHOD_CREATE_CUSTOMER, 
+                    "Erro ao criar customer no gateway {}: {} - StackTrace: {}", 
+                    provider, e.getMessage(), e);
+            throw e;
+        }
     }
 
     @Transactional(readOnly = true)
@@ -75,6 +119,29 @@ public class CustomerService {
     @Transactional(readOnly = true)
     public Customer findCustomerEntityById(Long id) {
         return findByIdOrThrow(id);
+    }
+
+    @Transactional
+    public void updateCustomerProviderId(Customer customer) {
+        customerRepository.save(customer);
+    }
+
+    @Transactional
+    public void ensureCustomerInGateway(Customer customer, Provider provider) {
+        if (com.conectaai.utils.CustomerGatewayUtils.needsGatewayCreation(customer, provider)) {
+            try {
+                var adapter = customerAdapterFactory.getAdapter(Provider.ASAAS);
+                String providerCustomerId = adapter.createCustomer(customer);
+                customer.setProviderCustomerId(providerCustomerId);
+                customerRepository.save(customer);
+                LOGGER.info("ensureCustomerInGateway", 
+                        "Customer criado no gateway {} com sucesso: providerCustomerId={}", 
+                        provider, providerCustomerId);
+            } catch (Exception e) {
+                LOGGER.warn("ensureCustomerInGateway", 
+                        "Erro ao criar customer no gateway {}: {}", provider, e.getMessage());
+            }
+        }
     }
 
     private Customer findByIdOrThrow(Long id) {

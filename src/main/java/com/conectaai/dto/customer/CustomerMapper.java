@@ -50,6 +50,7 @@ public class CustomerMapper {
                 customer.getCountry(),
                 customer.getBirthDate(),
                 customer.getCompanyName(),
+                customer.getProviderCustomerId(),
                 customer.getActive(),
                 customer.getCreatedAt(),
                 customer.getUpdatedAt()

@@ -99,7 +99,8 @@ public class AsaasSubscriptionAdapter implements SubscriptionGatewayAdapter {
             Class<?> subscriptionClass = Class.forName("com.asaas.apisdk.models.Subscription");
             Object builder = subscriptionClass.getMethod("builder").invoke(null);
 
-            invokeBuilderMethod(builder, FIELD_CUSTOMER, customer.getExternalId());
+            String customerId = getCustomerId(customer);
+            invokeBuilderMethod(builder, FIELD_CUSTOMER, customerId);
             invokeBuilderMethod(builder, FIELD_VALUE, amount.doubleValue());
             invokeBuilderMethod(builder, FIELD_BILLING_TYPE, mapPaymentMethod(paymentMethod));
             invokeBuilderMethod(builder, FIELD_CYCLE, mapInterval(interval));
@@ -119,7 +120,8 @@ public class AsaasSubscriptionAdapter implements SubscriptionGatewayAdapter {
             return buildMethod.invoke(builder);
         } catch (Exception e) {
             Map<String, Object> requestData = new HashMap<>();
-            requestData.put(FIELD_CUSTOMER, customer.getExternalId());
+            String customerId = getCustomerId(customer);
+            requestData.put(FIELD_CUSTOMER, customerId);
             requestData.put(FIELD_VALUE, amount.doubleValue());
             requestData.put(FIELD_BILLING_TYPE, mapPaymentMethod(paymentMethod));
             requestData.put(FIELD_CYCLE, mapInterval(interval));
@@ -284,5 +286,8 @@ public class AsaasSubscriptionAdapter implements SubscriptionGatewayAdapter {
             return null;
         }
     }
-}
 
+    private String getCustomerId(Customer customer) {
+        return com.conectaai.utils.CustomerGatewayUtils.getCustomerIdForGateway(customer);
+    }
+}

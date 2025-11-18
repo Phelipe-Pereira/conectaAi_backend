@@ -46,6 +46,8 @@ public class SubscriptionService {
             throw new IllegalArgumentException("Cliente inativo não pode criar assinaturas");
         }
 
+        customerService.ensureCustomerInGateway(customer, subscriptionRequest.provider());
+
         validateSubscriptionRequest(subscriptionRequest);
 
         Subscription subscription = SubscriptionMapper.toEntity(subscriptionRequest, customer);

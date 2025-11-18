@@ -78,8 +78,11 @@ sonar {
     properties {
         property 'sonar.projectKey', 'conectaai-gateway'
         property 'sonar.projectName', 'ConectaAI Gateway'
-        property 'sonar.host.url', System.getProperty('sonar.host.url', 'http://localhost:9000')
-        property 'sonar.token', System.getProperty('sonar.token', System.getenv('SONAR_TOKEN') ?: 'sqa_a5640cee20eba04c79e5030ca5a02b6364c20b61')
+        // Para Docker no Windows/Mac: usar host.docker.internal
+        // Para Linux: usar o IP do host ou executar do host
+        property 'sonar.host.url', System.getProperty('sonar.host.url', 
+            System.getenv('SONAR_HOST_URL') ?: 'http://host.docker.internal:9000')
+        property 'sonar.token', System.getProperty('sonar.token', System.getenv('SONAR_TOKEN') ?: 'sqa_18062d0671b0fa65d1923c10140d1c8318867bb5')
         property 'sonar.sources', 'src/main/java'
         property 'sonar.tests', 'src/test/java'
         property 'sonar.java.coveragePlugin', 'jacoco'

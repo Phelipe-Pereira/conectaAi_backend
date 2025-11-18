@@ -33,3 +33,5 @@ databaseChangeLog:
       file: classpath:db/changelog/013-add-provider-to-webhook-endpoint.yml
   - include:
       file: classpath:db/changelog/014-add-auth-token-to-webhook-endpoint.yml
+  - include:
+      file: classpath:db/changelog/015-add-provider-customer-id.yml

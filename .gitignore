@@ -1,22 +1,19 @@
 ### Arquivos de desenvolvimento interno ###
-docs/CURSOR_TASK.md
-docs/CURSOR_TASK_TWO.MD
-docs/cursor_task_three.md
-docs/CURSOR_TASK.md
-docs/PAYMENT_SERVICE_SPEC.md
-docs/PAYMENT_OPTIMIZATION.md
-docs/GATEWAY_COMPARISON.md
+# Documentação e diagramas
+*.md
+!README.md
+*.json
+*.ps1
+*.sh
 *.http
-api-tests.http
-Gateway-Collection.json
-docs/HELP.md
-docs/WEBHOOK_ARCHITECTURE.md
-docs/YAML_CHANGELOG.md
-conectaai-public-v1-api.yaml
+*.yaml
+*.yml
+!docker-compose.yml
+!**/db/changelog/*.yml
+!**/application*.yml
+!**/application*.properties
 .env.json
-test-complete.ps1
 test-*.ps1
-docs/*.md
 
 ### Gradle ###
 .gradle

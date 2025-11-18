@@ -16,10 +16,9 @@ services:
     container_name: conectaai-app
     ports:
       - "8080:8080"
+    env_file:
+      - .env.real
     environment:
-      ASAAS_TOKEN: ${ASAAS_TOKEN}
-      STRIPE_SECRET: ${STRIPE_SECRET}
-      MP_ACCESS_TOKEN: ${MP_ACCESS_TOKEN}
       SPRING_DATASOURCE_URL: jdbc:postgresql://app-db:5432/conectaai
       SPRING_DATASOURCE_USERNAME: conectaai
       SPRING_DATASOURCE_PASSWORD: conectaai

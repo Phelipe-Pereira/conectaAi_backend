@@ -95,7 +95,8 @@ public class AsaasPaymentAdapter implements PaymentGatewayAdapter {
             Class<?> paymentClass = Class.forName("com.asaas.apisdk.models.Payment");
             Object builder = paymentClass.getMethod("builder").invoke(null);
 
-            invokeBuilderMethod(builder, FIELD_CUSTOMER, customer.getExternalId());
+            String customerId = getCustomerId(customer);
+            invokeBuilderMethod(builder, FIELD_CUSTOMER, customerId);
             invokeBuilderMethod(builder, FIELD_VALUE, amount.doubleValue());
             invokeBuilderMethod(builder, FIELD_BILLING_TYPE, mapPaymentMethod(paymentMethod));
             invokeBuilderMethod(builder, FIELD_DUE_DATE, dueDate.format(DATE_FORMATTER));
@@ -111,7 +112,8 @@ public class AsaasPaymentAdapter implements PaymentGatewayAdapter {
             return buildMethod.invoke(builder);
         } catch (Exception e) {
             Map<String, Object> requestData = new HashMap<>();
-            requestData.put(FIELD_CUSTOMER, customer.getExternalId());
+            String customerId = getCustomerId(customer);
+            requestData.put(FIELD_CUSTOMER, customerId);
             requestData.put(FIELD_VALUE, amount.doubleValue());
             requestData.put(FIELD_BILLING_TYPE, mapPaymentMethod(paymentMethod));
             requestData.put(FIELD_DUE_DATE, dueDate.format(DATE_FORMATTER));
@@ -262,5 +264,8 @@ public class AsaasPaymentAdapter implements PaymentGatewayAdapter {
             return null;
         }
     }
-}
 
+    private String getCustomerId(Customer customer) {
+        return com.conectaai.utils.CustomerGatewayUtils.getCustomerIdForGateway(customer);
+    }
+}

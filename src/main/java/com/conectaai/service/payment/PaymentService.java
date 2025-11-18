@@ -49,6 +49,7 @@ public class PaymentService {
         validatePaymentRequest(paymentRequest);
 
         Customer customer = customerService.findCustomerEntityById(paymentRequest.customerId());
+        customerService.ensureCustomerInGateway(customer, paymentRequest.provider());
 
         Payment payment = PaymentMapper.toEntity(paymentRequest, customer);
 
