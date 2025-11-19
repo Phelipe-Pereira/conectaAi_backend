@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -106,6 +107,13 @@ public class StripePaymentAdapter implements PaymentGatewayAdapter {
     }
 
     @Override
+    public List<GatewayPaymentResponse> listPayments(String customerId, Integer offset, Integer limit) {
+        LOGGER.info("listPayments", "Listando pagamentos no Stripe: customerId={}, offset={}, limit={}", 
+                customerId, offset, limit);
+        throw new GatewayException(Provider.STRIPE, "Listagem de pagamentos não implementada para Stripe");
+    }
+
+    @Override
     public void cancelPayment(String providerPaymentId) {
         LOGGER.info(METHOD_CANCEL_PAYMENT, "Cancelando pagamento no Stripe: id={}", providerPaymentId);
 
@@ -118,6 +126,12 @@ public class StripePaymentAdapter implements PaymentGatewayAdapter {
             LOGGER.error(METHOD_CANCEL_PAYMENT, "Erro ao cancelar pagamento no Stripe", e);
             throw new GatewayException(Provider.STRIPE, "Erro ao cancelar pagamento: " + e.getMessage(), e);
         }
+    }
+
+    @Override
+    public GatewayPaymentResponse restorePayment(String providerPaymentId) {
+        LOGGER.info("restorePayment", "Restaurando pagamento no Stripe: id={}", providerPaymentId);
+        throw new GatewayException(Provider.STRIPE, "Restauração de pagamento não implementada para Stripe");
     }
 }
 

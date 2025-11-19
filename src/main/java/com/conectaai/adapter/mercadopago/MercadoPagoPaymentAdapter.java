@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -124,6 +125,13 @@ public class MercadoPagoPaymentAdapter implements PaymentGatewayAdapter {
     }
 
     @Override
+    public List<GatewayPaymentResponse> listPayments(String customerId, Integer offset, Integer limit) {
+        LOGGER.info("listPayments", "Listando pagamentos no Mercado Pago: customerId={}, offset={}, limit={}", 
+                customerId, offset, limit);
+        throw new GatewayException(Provider.MERCADO_PAGO, "Listagem de pagamentos não implementada para Mercado Pago");
+    }
+
+    @Override
     public void cancelPayment(String providerPaymentId) {
         LOGGER.info(METHOD_CANCEL_PAYMENT, "Cancelando pagamento no Mercado Pago: id={}", providerPaymentId);
 
@@ -136,6 +144,12 @@ public class MercadoPagoPaymentAdapter implements PaymentGatewayAdapter {
             LOGGER.error(METHOD_CANCEL_PAYMENT, "Erro ao cancelar pagamento no Mercado Pago", e);
             throw new GatewayException(Provider.MERCADO_PAGO, "Erro ao cancelar pagamento: " + e.getMessage(), e);
         }
+    }
+
+    @Override
+    public GatewayPaymentResponse restorePayment(String providerPaymentId) {
+        LOGGER.info("restorePayment", "Restaurando pagamento no Mercado Pago: id={}", providerPaymentId);
+        throw new GatewayException(Provider.MERCADO_PAGO, "Restauração de pagamento não implementada para Mercado Pago");
     }
 
     private String extractTicketUrl(Payment payment) {

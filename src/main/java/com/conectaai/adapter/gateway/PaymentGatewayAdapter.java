@@ -4,6 +4,7 @@ import com.conectaai.domain.Customer;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 public interface PaymentGatewayAdapter {
 
@@ -17,8 +18,12 @@ public interface PaymentGatewayAdapter {
             String externalId
     );
 
+    List<GatewayPaymentResponse> listPayments(String customerId, Integer offset, Integer limit);
+
     GatewayPaymentResponse getPayment(String providerPaymentId);
 
     void cancelPayment(String providerPaymentId);
+
+    GatewayPaymentResponse restorePayment(String providerPaymentId);
 }
 
