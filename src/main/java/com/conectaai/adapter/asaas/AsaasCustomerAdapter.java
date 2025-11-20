@@ -11,7 +11,9 @@ import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -109,6 +111,37 @@ public class AsaasCustomerAdapter implements CustomerGatewayAdapter {
         } catch (Exception e) {
             LOGGER.error("deleteCustomer", "Erro ao remover customer do Asaas", e);
             throw new GatewayException(Provider.ASAAS, "Erro ao remover customer: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public List<Object> listCustomers(String name, String email, String cpfCnpj, String groupName, String externalReference, Integer offset, Integer limit) {
+        LOGGER.info("listCustomers", "Listando customers no Asaas: name={}, email={}, offset={}, limit={}", 
+                name, email, offset, limit);
+
+        try {
+            Object customerService = getCustomerService(asaasSdk);
+            Object listParameters = createListCustomersParameters(name, email, cpfCnpj, groupName, externalReference, offset, limit);
+            Object response = invokeMethod(customerService, "listCustomers", listParameters);
+            return extractCustomerList(response);
+        } catch (Exception e) {
+            LOGGER.error("listCustomers", "Erro ao listar customers no Asaas: {}", e.getMessage(), e);
+            throw new GatewayException(Provider.ASAAS, "Erro ao listar customers: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public Object restoreCustomer(String providerCustomerId) {
+        LOGGER.info("restoreCustomer", "Restaurando customer no Asaas: id={}", providerCustomerId);
+
+        try {
+            Object customerService = getCustomerService(asaasSdk);
+            Object response = invokeMethod(customerService, "restoreRemovedCustomer", providerCustomerId, new Object());
+            LOGGER.info("restoreCustomer", "Customer restaurado no Asaas com sucesso");
+            return response;
+        } catch (Exception e) {
+            LOGGER.error("restoreCustomer", "Erro ao restaurar customer no Asaas: {}", e.getMessage(), e);
+            throw new GatewayException(Provider.ASAAS, "Erro ao restaurar customer: " + e.getMessage(), e);
         }
     }
 
@@ -550,6 +583,103 @@ public class AsaasCustomerAdapter implements CustomerGatewayAdapter {
             }
             return null;
         }
+    }
+
+    private Object createListCustomersParameters(String name, String email, String cpfCnpj, String groupName, String externalReference, Integer offset, Integer limit) {
+        try {
+            LOGGER.info("createListCustomersParameters", "Criando ListCustomersParameters via reflection");
+            Class<?> listParametersClass = Class.forName("com.asaas.apisdk.models.ListCustomersParameters");
+            LOGGER.info("createListCustomersParameters", "Classe ListCustomersParameters carregada: {}", listParametersClass.getName());
+            
+            Method builderMethod = listParametersClass.getMethod("builder");
+            Object builder = builderMethod.invoke(null);
+            LOGGER.info("createListCustomersParameters", "Builder criado com sucesso");
+            
+            if (name != null && !name.isBlank()) {
+                invokeBuilderMethod(builder, "name", name);
+            }
+            if (email != null && !email.isBlank()) {
+                invokeBuilderMethod(builder, "email", email);
+            }
+            if (cpfCnpj != null && !cpfCnpj.isBlank()) {
+                invokeBuilderMethod(builder, "cpfCnpj", cpfCnpj);
+            }
+            if (groupName != null && !groupName.isBlank()) {
+                invokeBuilderMethod(builder, "groupName", groupName);
+            }
+            if (externalReference != null && !externalReference.isBlank()) {
+                invokeBuilderMethod(builder, "externalReference", externalReference);
+            }
+            if (offset != null) {
+                invokeBuilderMethod(builder, "offset", offset.longValue());
+            }
+            if (limit != null) {
+                invokeBuilderMethod(builder, "limit", limit.longValue());
+            }
+            
+            Method buildMethod = builder.getClass().getMethod("build");
+            Object parameters = buildMethod.invoke(builder);
+            LOGGER.info("createListCustomersParameters", "ListCustomersParameters criado com sucesso");
+            return parameters;
+        } catch (Exception e) {
+            LOGGER.error("createListCustomersParameters", "Erro ao criar ListCustomersParameters: {}", e.getMessage(), e);
+            throw new GatewayException(Provider.ASAAS, "Erro ao criar parâmetros de listagem: " + e.getMessage(), e);
+        }
+    }
+
+    private List<Object> extractCustomerList(Object response) {
+        try {
+            List<Object> customerList = new ArrayList<>();
+            
+            Object data = extractFieldObject(response, "data");
+            if (data == null) {
+                data = extractFieldObject(response, "customers");
+            }
+            if (data == null) {
+                data = response;
+            }
+            
+            if (data instanceof List) {
+                List<?> dataList = (List<?>) data;
+                LOGGER.info("extractCustomerList", "Extraindo {} customers da lista", dataList.size());
+                for (Object item : dataList) {
+                    customerList.add(item);
+                }
+            } else {
+                LOGGER.warn("extractCustomerList", "Resposta não é uma lista, adicionando como objeto único");
+                customerList.add(data);
+            }
+            
+            LOGGER.info("extractCustomerList", "Extração concluída: {} customers", customerList.size());
+            return customerList;
+        } catch (Exception e) {
+            LOGGER.error("extractCustomerList", "Erro ao extrair lista de customers: {}", e.getMessage(), e);
+            throw new GatewayException(Provider.ASAAS, "Erro ao extrair lista de customers: " + e.getMessage(), e);
+        }
+    }
+
+    private Object extractFieldObject(Object obj, String fieldName) {
+        try {
+            Field field = obj.getClass().getDeclaredField(fieldName);
+            field.setAccessible(true);
+            return field.get(obj);
+        } catch (NoSuchFieldException e) {
+            try {
+                Method method = obj.getClass().getMethod("get" + capitalize(fieldName));
+                return method.invoke(obj);
+            } catch (Exception ex) {
+                return null;
+            }
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private String capitalize(String str) {
+        if (str == null || str.isEmpty()) {
+            return str;
+        }
+        return str.substring(0, 1).toUpperCase() + str.substring(1);
     }
 }
 
