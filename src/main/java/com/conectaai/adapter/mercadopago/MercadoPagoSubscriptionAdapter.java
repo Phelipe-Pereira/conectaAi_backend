@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -125,6 +126,16 @@ public class MercadoPagoSubscriptionAdapter implements SubscriptionGatewayAdapte
                 "ID fornecido: {}", providerSubscriptionId);
         throw new GatewayException(Provider.MERCADO_PAGO, 
                 "Cancelamento de assinatura deve ser feito via painel do Mercado Pago");
+    }
+
+    @Override
+    public List<Object> listSubscriptions(String customer, String customerGroupName, String billingType, String status, String externalReference, Integer offset, Integer limit) {
+        throw new IllegalArgumentException("Funcionalidade de listagem de assinaturas não está disponível para Mercado Pago");
+    }
+
+    @Override
+    public GatewaySubscriptionResponse updateSubscription(String providerSubscriptionId, Customer customer, BigDecimal amount, String currency, String interval, String paymentMethod, String description, LocalDateTime startAt, LocalDateTime endAt, String externalId) {
+        throw new IllegalArgumentException("Funcionalidade de atualização de assinatura não está disponível para Mercado Pago");
     }
 
     private String extractCurrencyId(Preference preference) {

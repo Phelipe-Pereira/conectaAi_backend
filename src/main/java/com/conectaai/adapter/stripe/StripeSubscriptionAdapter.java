@@ -22,6 +22,7 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -160,6 +161,16 @@ public class StripeSubscriptionAdapter implements SubscriptionGatewayAdapter {
             LOGGER.error(METHOD_CANCEL_SUBSCRIPTION, "Erro ao cancelar assinatura no Stripe", e);
             throw new GatewayException(Provider.STRIPE, "Erro ao cancelar assinatura: " + e.getMessage(), e);
         }
+    }
+
+    @Override
+    public List<Object> listSubscriptions(String customer, String customerGroupName, String billingType, String status, String externalReference, Integer offset, Integer limit) {
+        throw new IllegalArgumentException("Funcionalidade de listagem de assinaturas não está disponível para Stripe");
+    }
+
+    @Override
+    public GatewaySubscriptionResponse updateSubscription(String providerSubscriptionId, Customer customer, BigDecimal amount, String currency, String interval, String paymentMethod, String description, LocalDateTime startAt, LocalDateTime endAt, String externalId) {
+        throw new IllegalArgumentException("Funcionalidade de atualização de assinatura não está disponível para Stripe");
     }
 
     private PriceCreateParams.Recurring.Interval mapInterval(String interval) {
