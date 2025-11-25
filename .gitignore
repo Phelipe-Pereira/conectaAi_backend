@@ -2,6 +2,12 @@
 # Documentação e diagramas
 *.md
 !README.md
+*.pdf
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
 *.json
 *.ps1
 *.sh
@@ -14,6 +20,7 @@
 !**/application*.properties
 .env.json
 test-*.ps1
+docs/
 
 ### Gradle ###
 .gradle
