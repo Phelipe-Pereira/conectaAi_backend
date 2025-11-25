@@ -8,6 +8,7 @@ import com.conectaai.enums.SubscriptionStatus;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public record SubscriptionResponseDto(
@@ -37,10 +38,10 @@ public record SubscriptionResponseDto(
         String description,
 
         @JsonProperty("start_at")
-        LocalDateTime startAt,
+        LocalDate startAt,
 
         @JsonProperty("end_at")
-        LocalDateTime endAt,
+        LocalDate endAt,
 
         @JsonProperty("created_at")
         LocalDateTime createdAt,

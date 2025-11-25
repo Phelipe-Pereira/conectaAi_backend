@@ -4,7 +4,7 @@ import com.conectaai.enums.SubscriptionStatus;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Size;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 public record SubscriptionUpdateDto(
         SubscriptionStatus status,
@@ -14,7 +14,7 @@ public record SubscriptionUpdateDto(
         String providerSubscriptionId,
 
         @JsonProperty("end_at")
-        LocalDateTime endAt,
+        LocalDate endAt,
 
         @Size(max = 500)
         String description

@@ -5,6 +5,8 @@ import com.conectaai.domain.Subscription;
 import com.conectaai.dto.customer.CustomerSummaryDto;
 import com.conectaai.enums.SubscriptionStatus;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 public final class SubscriptionMapper {
@@ -22,8 +24,8 @@ public final class SubscriptionMapper {
                 .interval(subscriptionRequest.interval())
                 .paymentMethod(subscriptionRequest.paymentMethod())
                 .description(subscriptionRequest.description())
-                .startAt(subscriptionRequest.startAt())
-                .endAt(subscriptionRequest.endAt())
+                .startAt(subscriptionRequest.startAt() != null ? subscriptionRequest.startAt().atStartOfDay() : null)
+                .endAt(subscriptionRequest.endAt() != null ? subscriptionRequest.endAt().atStartOfDay() : null)
                 .status(SubscriptionStatus.PENDING)
                 .build();
     }
@@ -41,8 +43,8 @@ public final class SubscriptionMapper {
                 subscription.getStatus(),
                 subscription.getPaymentMethod(),
                 subscription.getDescription(),
-                subscription.getStartAt(),
-                subscription.getEndAt(),
+                subscription.getStartAt() != null ? subscription.getStartAt().toLocalDate() : null,
+                subscription.getEndAt() != null ? subscription.getEndAt().toLocalDate() : null,
                 subscription.getCreatedAt(),
                 subscription.getUpdatedAt()
         );
@@ -59,8 +61,8 @@ public final class SubscriptionMapper {
                 subscription.getInterval(),
                 subscription.getStatus(),
                 subscription.getPaymentMethod(),
-                subscription.getStartAt(),
-                subscription.getEndAt(),
+                subscription.getStartAt() != null ? subscription.getStartAt().toLocalDate() : null,
+                subscription.getEndAt() != null ? subscription.getEndAt().toLocalDate() : null,
                 subscription.getCreatedAt()
         );
     }
@@ -73,7 +75,7 @@ public final class SubscriptionMapper {
             subscription.setProviderSubscriptionId(updateRequest.providerSubscriptionId());
         }
         if (updateRequest.endAt() != null) {
-            subscription.setEndAt(updateRequest.endAt());
+            subscription.setEndAt(updateRequest.endAt().atStartOfDay());
         }
         if (updateRequest.description() != null) {
             subscription.setDescription(updateRequest.description());

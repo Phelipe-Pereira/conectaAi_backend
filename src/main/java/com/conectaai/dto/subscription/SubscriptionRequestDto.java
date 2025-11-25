@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 public record SubscriptionRequestDto(
         @NotNull(message = "Customer ID é obrigatório")
@@ -40,9 +40,9 @@ public record SubscriptionRequestDto(
         @NotNull(message = "Data de início é obrigatória")
         @Future(message = "Data de início deve estar no futuro")
         @JsonProperty("start_at")
-        LocalDateTime startAt,
+        LocalDate startAt,
 
         @JsonProperty("end_at")
-        LocalDateTime endAt
+        LocalDate endAt
 ) {
 }
