@@ -155,12 +155,23 @@ public class WebhookPayloadNormalizer {
 
     private String extractAsaasEventId(JsonNode payload) {
         String eventId = extractString(payload, "event/id");
-        return eventId != null ? eventId : extractString(payload, "id");
+        if (eventId != null) {
+            return eventId;
+        }
+        eventId = extractString(payload, "id");
+        return eventId;
     }
 
     private OffsetDateTime extractAsaasTimestamp(JsonNode payload) {
         OffsetDateTime occurredAt = extractTimestamp(payload, "event/date");
-        return occurredAt != null ? occurredAt : extractTimestamp(payload, "date");
+        if (occurredAt != null) {
+            return occurredAt;
+        }
+        occurredAt = extractTimestamp(payload, "dateCreated");
+        if (occurredAt != null) {
+            return occurredAt;
+        }
+        return extractTimestamp(payload, "date");
     }
 
     private String extractAsaasExternalId(JsonNode payload) {
@@ -295,13 +306,27 @@ public class WebhookPayloadNormalizer {
             );
         }
         if (fieldNode.isTextual()) {
+            String dateStr = fieldNode.asText();
             try {
-                return OffsetDateTime.parse(fieldNode.asText());
+                return OffsetDateTime.parse(dateStr);
             } catch (Exception e) {
                 try {
-                    return OffsetDateTime.parse(fieldNode.asText(), DateTimeFormatter.ISO_DATE_TIME);
+                    return OffsetDateTime.parse(dateStr, DateTimeFormatter.ISO_DATE_TIME);
                 } catch (Exception ex) {
-                    return null;
+                    try {
+                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                        return java.time.LocalDateTime.parse(dateStr, formatter)
+                                .atOffset(java.time.ZoneOffset.of("-03:00"));
+                    } catch (Exception ex2) {
+                        try {
+                            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                            return java.time.LocalDate.parse(dateStr, formatter)
+                                    .atStartOfDay()
+                                    .atOffset(java.time.ZoneOffset.of("-03:00"));
+                        } catch (Exception ex3) {
+                            return null;
+                        }
+                    }
                 }
             }
         }

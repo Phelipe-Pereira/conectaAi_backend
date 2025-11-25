@@ -30,7 +30,7 @@ public class WebhookSignatureValidator {
     @Value("${webhooks.validation.enabled:true}")
     private boolean validationEnabled;
 
-    @Value("${webhooks.asaas.defaultAuthHeader:X-Webhook-Auth}")
+    @Value("${webhooks.asaas.defaultAuthHeader:asaas-access-token}")
     private String asaasDefaultAuthHeader;
 
     public boolean isValid(Provider provider, HttpHeaders headers, String rawPayload, String webhookEndpointId) {
@@ -135,15 +135,21 @@ public class WebhookSignatureValidator {
     }
 
     private boolean validateAsaas(HttpHeaders headers, String webhookEndpointId) {
-        String receivedToken = extractAsaasToken(headers);
-        if (receivedToken == null || receivedToken.isBlank()) {
-            LOGGER.warn(METHOD_VALIDATE_ASAAS, "Token de autenticação Asaas ausente nos headers");
-            return false;
-        }
-
         String expectedToken = getAsaasAuthToken(webhookEndpointId);
         if (expectedToken == null || expectedToken.isBlank()) {
-            LOGGER.warn(METHOD_VALIDATE_ASAAS, "Token de autenticação Asaas não configurado");
+            LOGGER.info(METHOD_VALIDATE_ASAAS, "Token de autenticação Asaas não configurado, permitindo webhook sem validação");
+            return true;
+        }
+
+        boolean isWebhookTokenConfigured = isWebhookTokenExplicitlyConfigured(webhookEndpointId);
+        if (!isWebhookTokenConfigured) {
+            LOGGER.info(METHOD_VALIDATE_ASAAS, "Token de webhook Asaas não configurado explicitamente, permitindo webhook sem validação");
+            return true;
+        }
+
+        String receivedToken = extractAsaasToken(headers);
+        if (receivedToken == null || receivedToken.isBlank()) {
+            LOGGER.warn(METHOD_VALIDATE_ASAAS, "Token de autenticação Asaas ausente nos headers, mas token esperado está configurado");
             return false;
         }
 
@@ -158,25 +164,31 @@ public class WebhookSignatureValidator {
         return isValid;
     }
 
+    private boolean isWebhookTokenExplicitlyConfigured(String webhookEndpointId) {
+        if (webhookEndpointId != null && !webhookEndpointId.isBlank()) {
+            try {
+                return webhookEndpointRepository.findById(Long.parseLong(webhookEndpointId))
+                        .map(endpoint -> endpoint.getAuthToken() != null && !endpoint.getAuthToken().isBlank())
+                        .orElse(false);
+            } catch (NumberFormatException e) {
+                return false;
+            }
+        }
+        return gatewayConfig.getAsaasWebhookAuthToken() != null && !gatewayConfig.getAsaasWebhookAuthToken().isBlank();
+    }
+
     private String extractAsaasToken(HttpHeaders headers) {
-        String token = headers.getFirst(asaasDefaultAuthHeader);
+        String token = headers.getFirst("asaas-access-token");
+        if (token != null && !token.isBlank()) {
+            return token;
+        }
+        token = headers.getFirst(asaasDefaultAuthHeader);
         if (token != null && !token.isBlank()) {
             return token;
         }
         token = headers.getFirst("X-Webhook-Auth");
         if (token != null && !token.isBlank()) {
             return token;
-        }
-        token = headers.getFirst("X-Auth-Token");
-        if (token != null && !token.isBlank()) {
-            return token;
-        }
-        String authorization = headers.getFirst("Authorization");
-        if (authorization != null && !authorization.isBlank()) {
-            if (authorization.startsWith("Bearer ")) {
-                return authorization.substring(7);
-            }
-            return authorization;
         }
         return null;
     }

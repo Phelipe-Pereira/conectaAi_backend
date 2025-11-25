@@ -30,7 +30,7 @@ public class AsaasWebhookAdapter implements WebhookGatewayAdapter {
             Object webhookService = getWebhookService(asaasSdk);
 
             Object request = createWebhookRequest(url, events, secret);
-            Object webhookResponse = invokeWebhookMethod(webhookService, "create", request);
+            Object webhookResponse = invokeWebhookMethod(webhookService, "createNewWebhook", request);
 
             Map<String, Object> metadata = new HashMap<>();
             String webhookId = extractId(webhookResponse);
@@ -72,7 +72,7 @@ public class AsaasWebhookAdapter implements WebhookGatewayAdapter {
         try {
             Object webhookService = getWebhookService(asaasSdk);
 
-            Object webhookResponse = invokeWebhookMethod(webhookService, "getById", providerEndpointId);
+            Object webhookResponse = invokeWebhookMethod(webhookService, "retrieveASingleWebhook", providerEndpointId);
 
             Map<String, Object> metadata = new HashMap<>();
             String webhookId = extractId(webhookResponse);
@@ -113,16 +113,15 @@ public class AsaasWebhookAdapter implements WebhookGatewayAdapter {
         try {
             Object webhookService = getWebhookService(asaasSdk);
 
-            Object existingWebhook = invokeWebhookMethod(webhookService, "getById", providerEndpointId);
+            Object existingWebhook = invokeWebhookMethod(webhookService, "retrieveASingleWebhook", providerEndpointId);
             String existingUrl = extractUrl(existingWebhook);
 
-            Object request = createWebhookRequest(
+            Object request = createWebhookUpdateRequest(
                     url != null && !url.isBlank() ? url : existingUrl,
-                    events,
-                    null
+                    events
             );
 
-            Object webhookResponse = invokeWebhookMethod(webhookService, "update", providerEndpointId, request);
+            Object webhookResponse = invokeWebhookMethod(webhookService, "updateExistingWebhook", providerEndpointId, request);
 
             Map<String, Object> metadata = new HashMap<>();
             String webhookId = extractId(webhookResponse);
@@ -164,7 +163,7 @@ public class AsaasWebhookAdapter implements WebhookGatewayAdapter {
         try {
             Object webhookService = getWebhookService(asaasSdk);
 
-            invokeWebhookMethod(webhookService, "delete", providerEndpointId);
+            invokeWebhookMethod(webhookService, "removeWebhook", providerEndpointId);
 
             LOGGER.info("deleteWebhook", "Webhook deletado no Asaas: id={}", providerEndpointId);
 
@@ -203,32 +202,91 @@ public class AsaasWebhookAdapter implements WebhookGatewayAdapter {
 
     private Object createWebhookRequest(String url, List<String> events, String secret) {
         try {
-            Class<?> webhookClass = Class.forName("com.asaas.apisdk.models.Webhook");
+            Class<?> webhookClass = Class.forName("com.asaas.apisdk.models.WebhookConfigSaveRequestDto");
             Object builder = webhookClass.getMethod("builder").invoke(null);
             
             Method urlMethod = builder.getClass().getMethod("url", String.class);
             urlMethod.invoke(builder, url);
             
+            Method apiVersionMethod = builder.getClass().getMethod("apiVersion", Long.class);
+            apiVersionMethod.invoke(builder, 3L);
+            
             if (secret != null && !secret.isBlank()) {
-                Method tokenMethod = builder.getClass().getMethod("authorizationToken", String.class);
+                Method tokenMethod = builder.getClass().getMethod("authToken", String.class);
                 tokenMethod.invoke(builder, secret);
             }
             
             if (events != null && !events.isEmpty()) {
-                Method eventMethod = builder.getClass().getMethod("event", String.class);
-                eventMethod.invoke(builder, events.get(0));
+                try {
+                    Class<?> eventClass = Class.forName("com.asaas.apisdk.models.WebhookConfigSaveRequestWebhookEvent");
+                    Method eventsMethod = builder.getClass().getMethod("events", List.class);
+                    List<Object> eventList = events.stream()
+                            .map(event -> {
+                                try {
+                                    return eventClass.getField(event).get(null);
+                                } catch (Exception ex) {
+                                    return event;
+                                }
+                            })
+                            .toList();
+                    eventsMethod.invoke(builder, eventList);
+                } catch (Exception ex) {
+                    LOGGER.warn("createWebhookRequest", "Erro ao converter eventos, usando fallback: {}", ex.getMessage());
+                }
             }
             
             Method buildMethod = builder.getClass().getMethod("build");
             return buildMethod.invoke(builder);
         } catch (Exception e) {
+            LOGGER.warn("createWebhookRequest", "Erro ao criar request via reflection, usando fallback: {}", e.getMessage());
             Map<String, Object> requestData = new HashMap<>();
             requestData.put("url", url);
+            requestData.put("apiVersion", 3L);
             if (secret != null && !secret.isBlank()) {
-                requestData.put("authorizationToken", secret);
+                requestData.put("authToken", secret);
             }
             if (events != null && !events.isEmpty()) {
-                requestData.put("event", events.get(0));
+                requestData.put("events", events);
+            }
+            return requestData;
+        }
+    }
+
+    private Object createWebhookUpdateRequest(String url, List<String> events) {
+        try {
+            Class<?> webhookClass = Class.forName("com.asaas.apisdk.models.WebhookConfigUpdateRequestDto");
+            Object builder = webhookClass.getMethod("builder").invoke(null);
+            
+            Method urlMethod = builder.getClass().getMethod("url", String.class);
+            urlMethod.invoke(builder, url);
+            
+            if (events != null && !events.isEmpty()) {
+                try {
+                    Class<?> eventClass = Class.forName("com.asaas.apisdk.models.WebhookConfigUpdateRequestWebhookEvent");
+                    Method eventsMethod = builder.getClass().getMethod("events", List.class);
+                    List<Object> eventList = events.stream()
+                            .map(event -> {
+                                try {
+                                    return eventClass.getField(event).get(null);
+                                } catch (Exception ex) {
+                                    return event;
+                                }
+                            })
+                            .toList();
+                    eventsMethod.invoke(builder, eventList);
+                } catch (Exception ex) {
+                    LOGGER.warn("createWebhookUpdateRequest", "Erro ao converter eventos, usando fallback: {}", ex.getMessage());
+                }
+            }
+            
+            Method buildMethod = builder.getClass().getMethod("build");
+            return buildMethod.invoke(builder);
+        } catch (Exception e) {
+            LOGGER.warn("createWebhookUpdateRequest", "Erro ao criar request via reflection, usando fallback: {}", e.getMessage());
+            Map<String, Object> requestData = new HashMap<>();
+            requestData.put("url", url);
+            if (events != null && !events.isEmpty()) {
+                requestData.put("events", events);
             }
             return requestData;
         }

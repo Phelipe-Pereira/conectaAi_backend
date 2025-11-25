@@ -6,6 +6,8 @@ import com.conectaai.logger.AppLogger;
 import com.conectaai.messaging.WebhookMessage;
 import com.conectaai.messaging.WebhookPublisher;
 import com.conectaai.repository.WebhookEventRepository;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -25,9 +27,15 @@ public class WebhookService {
     private final WebhookPublisher publisher;
     private final WebhookPayloadNormalizer normalizer;
     private final WebhookSignatureValidator signatureValidator;
+    private final ObjectMapper objectMapper;
 
     public void handleProviderCallback(Provider provider, HttpHeaders headers, String rawPayload) {
         String eventType = extractEventType(provider, headers);
+        
+        if (eventType == null || "unknown".equals(eventType)) {
+            eventType = extractEventTypeFromPayload(provider, rawPayload);
+        }
+        
         String webhookEndpointId = extractWebhookEndpointId(headers);
 
         if (!signatureValidator.isValid(provider, headers, rawPayload, webhookEndpointId)) {
@@ -132,6 +140,25 @@ public class WebhookService {
             return type;
         }
         return "unknown";
+    }
+
+    private String extractEventTypeFromPayload(Provider provider, String rawPayload) {
+        try {
+            JsonNode payload = objectMapper.readTree(rawPayload);
+            
+            if (provider == Provider.ASAAS) {
+                String event = payload.path("event").asText(null);
+                if (event != null && !event.isBlank()) {
+                    LOGGER.info("extractEventTypeFromPayload", "Evento extraído do payload do Asaas: {}", event);
+                    return event;
+                }
+            }
+            
+            return "unknown";
+        } catch (Exception e) {
+            LOGGER.warn("extractEventTypeFromPayload", "Erro ao extrair tipo de evento do payload: {}", e.getMessage());
+            return "unknown";
+        }
     }
 
     private String extractWebhookEndpointId(HttpHeaders headers) {
