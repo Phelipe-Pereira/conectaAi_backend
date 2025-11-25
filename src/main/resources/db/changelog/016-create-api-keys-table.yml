@@ -1,0 +1,104 @@
+databaseChangeLog:
+  - changeSet:
+      id: 016-create-api-keys-table
+      author: conectaai
+      changes:
+        - createTable:
+            tableName: api_keys
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: key_hash
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: key_prefix
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: name
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: VARCHAR(500)
+              - column:
+                  name: user_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: active
+                  type: BOOLEAN
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+              - column:
+                  name: expires_at
+                  type: TIMESTAMP WITH TIME ZONE
+              - column:
+                  name: last_used_at
+                  type: TIMESTAMP WITH TIME ZONE
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: revoked_at
+                  type: TIMESTAMP WITH TIME ZONE
+
+        - addForeignKeyConstraint:
+            baseTableName: api_keys
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_api_key_user
+            onDelete: CASCADE
+            onUpdate: CASCADE
+
+        - createIndex:
+            tableName: api_keys
+            indexName: idx_api_key_key
+            columns:
+              - column:
+                  name: key_hash
+
+        - createIndex:
+            tableName: api_keys
+            indexName: idx_api_key_user
+            columns:
+              - column:
+                  name: user_id
+
+        - createIndex:
+            tableName: api_keys
+            indexName: idx_api_key_active
+            columns:
+              - column:
+                  name: active
+
+        - createIndex:
+            tableName: api_keys
+            indexName: idx_api_key_expires
+            columns:
+              - column:
+                  name: expires_at
+

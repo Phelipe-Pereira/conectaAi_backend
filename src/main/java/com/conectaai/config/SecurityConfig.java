@@ -1,16 +1,16 @@
 package com.conectaai.config;
 
+import com.conectaai.security.ApiKeyAuthenticationFilter;
 import com.conectaai.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -28,6 +28,8 @@ public class SecurityConfig {
     private static final String ROLE_USER = "USER";
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    @Lazy
+    private final ApiKeyAuthenticationFilter apiKeyAuthenticationFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -55,19 +57,16 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/refunds/**").hasAnyRole(ROLE_USER, ROLE_ADMIN)
                         .requestMatchers("/api/v1/admin/**").hasRole(ROLE_ADMIN)
                         .requestMatchers("/api/v1/users/**").hasAnyRole(ROLE_USER, ROLE_ADMIN)
+                        .requestMatchers("/api/v1/api-keys/**").hasAnyRole(ROLE_USER, ROLE_ADMIN)
                         .anyRequest().authenticated()
                 )
                 .logout(lo -> lo
                         .logoutUrl("/api/v1/auth/logout")
                         .logoutSuccessHandler((req, res, authn) -> res.setStatus(204))
                 )
+                .addFilterBefore(apiKeyAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
     }
 
     @Bean

@@ -297,6 +297,26 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
+    @ExceptionHandler(ApiKeyNotFoundException.class)
+    public ResponseEntity<ErrorResponseDto> handleApiKeyNotFound(ApiKeyNotFoundException exception) {
+        ErrorDetailDto errorDetail = new ErrorDetailDto(
+                "API_KEY_NOT_FOUND",
+                exception.getMessage()
+        );
+        ErrorResponseDto errorResponse = new ErrorResponseDto(errorDetail);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    }
+
+    @ExceptionHandler(UnauthorizedApiKeyAccessException.class)
+    public ResponseEntity<ErrorResponseDto> handleUnauthorizedApiKeyAccess(UnauthorizedApiKeyAccessException exception) {
+        ErrorDetailDto errorDetail = new ErrorDetailDto(
+                "UNAUTHORIZED_API_KEY_ACCESS",
+                exception.getMessage()
+        );
+        ErrorResponseDto errorResponse = new ErrorResponseDto(errorDetail);
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse);
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponseDto> handleIllegalArgument(IllegalArgumentException exception) {
         ErrorDetailDto errorDetail = new ErrorDetailDto(
