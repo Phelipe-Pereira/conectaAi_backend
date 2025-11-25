@@ -29,13 +29,19 @@ public class CustomerService {
 
     private final CustomerRepository customerRepository;
     private final CustomerGatewayAdapterFactory customerAdapterFactory;
+    private final com.conectaai.repository.UserRepository userRepository;
 
     @Transactional
     public CustomerResponseDto createCustomer(CustomerRequestDto customerRequest) {
         validateDocumentPresence(customerRequest.cpf(), customerRequest.cnpj());
         validateUniqueness(customerRequest.email(), customerRequest.cpf(), customerRequest.cnpj(), null);
 
+        Long currentUserId = com.conectaai.security.SecurityUtils.getCurrentUserId();
+        com.conectaai.domain.User currentUser = userRepository.findById(currentUserId)
+                .orElseThrow(() -> new com.conectaai.exception.UserNotFoundException("Usuário não encontrado"));
+
         Customer customer = CustomerMapper.toEntity(customerRequest);
+        customer.setUser(currentUser);
         Customer savedCustomer = customerRepository.save(customer);
         LOGGER.info(METHOD_CREATE_CUSTOMER, "Customer salvo localmente com ID: {}", savedCustomer.getId());
         
@@ -86,7 +92,9 @@ public class CustomerService {
             String state,
             Pageable pageable) {
 
-        Specification<Customer> spec = buildSpecification(externalId, active, term, city, state);
+        Long currentUserId = com.conectaai.security.SecurityUtils.getCurrentUserId();
+        Specification<Customer> spec = CustomerSpecification.hasUserId(currentUserId)
+                .and(buildSpecification(externalId, active, term, city, state));
         return customerRepository.findAll(spec, pageable)
                 .map(CustomerMapper::toResponseDto);
     }

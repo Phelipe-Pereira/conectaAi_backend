@@ -58,5 +58,14 @@ public final class CustomerSpecification {
             return criteriaBuilder.equal(root.get("state"), state);
         };
     }
+
+    public static Specification<Customer> hasUserId(Long userId) {
+        return (root, query, criteriaBuilder) -> {
+            if (userId == null) {
+                return criteriaBuilder.conjunction();
+            }
+            return criteriaBuilder.equal(root.get("user").get("id"), userId);
+        };
+    }
 }
 

@@ -124,5 +124,14 @@ public final class PaymentSpecification {
             return criteriaBuilder.lessThanOrEqualTo(root.get(FIELD_PAID_AT), endDate);
         };
     }
+
+    public static Specification<Payment> hasUserId(Long userId) {
+        return (root, query, criteriaBuilder) -> {
+            if (userId == null) {
+                return criteriaBuilder.conjunction();
+            }
+            return criteriaBuilder.equal(root.get("user").get("id"), userId);
+        };
+    }
 }
 

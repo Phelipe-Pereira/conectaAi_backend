@@ -1,6 +1,7 @@
 package com.conectaai.dto.customer;
 
 import com.conectaai.domain.Customer;
+import com.conectaai.enums.Provider;
 
 import java.util.UUID;
 public class CustomerMapper {
@@ -32,6 +33,11 @@ public class CustomerMapper {
     }
 
     public static CustomerResponseDto toResponseDto(Customer customer) {
+        Provider provider = customer.getProviderCustomerId() != null && 
+                            !customer.getProviderCustomerId().isBlank() 
+                            ? Provider.ASAAS 
+                            : null;
+        
         return new CustomerResponseDto(
                 customer.getId().toString(),
                 customer.getFirstName(),
@@ -51,6 +57,7 @@ public class CustomerMapper {
                 customer.getBirthDate(),
                 customer.getCompanyName(),
                 customer.getProviderCustomerId(),
+                provider,
                 customer.getActive(),
                 customer.getCreatedAt(),
                 customer.getUpdatedAt()

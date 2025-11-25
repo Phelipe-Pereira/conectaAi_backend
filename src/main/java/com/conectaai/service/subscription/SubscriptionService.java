@@ -34,6 +34,7 @@ public class SubscriptionService {
     private final SubscriptionRepository subscriptionRepository;
     private final CustomerService customerService;
     private final com.conectaai.adapter.factory.SubscriptionGatewayAdapterFactory adapterFactory;
+    private final com.conectaai.repository.UserRepository userRepository;
 
     @Transactional
     public SubscriptionResponseDto createSubscription(SubscriptionRequestDto subscriptionRequest) {
@@ -50,7 +51,12 @@ public class SubscriptionService {
 
         validateSubscriptionRequest(subscriptionRequest);
 
+        Long currentUserId = com.conectaai.security.SecurityUtils.getCurrentUserId();
+        com.conectaai.domain.User currentUser = userRepository.findById(currentUserId)
+                .orElseThrow(() -> new com.conectaai.exception.UserNotFoundException("Usuário não encontrado"));
+
         Subscription subscription = SubscriptionMapper.toEntity(subscriptionRequest, customer);
+        subscription.setUser(currentUser);
 
         try {
             com.conectaai.adapter.gateway.SubscriptionGatewayAdapter adapter = 
@@ -103,7 +109,10 @@ public class SubscriptionService {
     ) {
         LOGGER.info("findSubscriptions", "Buscando assinaturas com filtros aplicados");
 
-        Specification<Subscription> spec = SubscriptionSpecification.hasExternalId(externalId)
+        Long currentUserId = com.conectaai.security.SecurityUtils.getCurrentUserId();
+
+        Specification<Subscription> spec = SubscriptionSpecification.hasUserId(currentUserId)
+                .and(SubscriptionSpecification.hasExternalId(externalId))
                 .and(SubscriptionSpecification.hasCustomerId(customerId))
                 .and(SubscriptionSpecification.hasProvider(provider))
                 .and(SubscriptionSpecification.hasStatus(status))

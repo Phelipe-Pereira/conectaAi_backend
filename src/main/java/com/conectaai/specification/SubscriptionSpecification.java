@@ -123,5 +123,14 @@ public final class SubscriptionSpecification {
             return criteriaBuilder.lessThanOrEqualTo(root.get(FIELD_CREATED_AT), createdEnd);
         };
     }
+
+    public static Specification<Subscription> hasUserId(Long userId) {
+        return (root, query, criteriaBuilder) -> {
+            if (userId == null) {
+                return criteriaBuilder.conjunction();
+            }
+            return criteriaBuilder.equal(root.get("user").get("id"), userId);
+        };
+    }
 }
 

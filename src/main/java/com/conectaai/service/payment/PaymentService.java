@@ -41,6 +41,7 @@ public class PaymentService {
     private final CustomerService customerService;
     private final ObjectMapper objectMapper;
     private final com.conectaai.adapter.factory.PaymentGatewayAdapterFactory adapterFactory;
+    private final com.conectaai.repository.UserRepository userRepository;
 
     @Transactional
     public PaymentResponseDto createPayment(PaymentRequestDto paymentRequest) {
@@ -51,7 +52,12 @@ public class PaymentService {
         Customer customer = customerService.findCustomerEntityById(paymentRequest.customerId());
         customerService.ensureCustomerInGateway(customer, paymentRequest.provider());
 
+        Long currentUserId = com.conectaai.security.SecurityUtils.getCurrentUserId();
+        com.conectaai.domain.User currentUser = userRepository.findById(currentUserId)
+                .orElseThrow(() -> new com.conectaai.exception.UserNotFoundException("Usuário não encontrado"));
+
         Payment payment = PaymentMapper.toEntity(paymentRequest, customer);
+        payment.setUser(currentUser);
 
         validateExternalIdUniqueness(payment.getExternalId());
 
@@ -107,7 +113,10 @@ public class PaymentService {
     ) {
         LOGGER.info("findPayments", "Buscando pagamentos com filtros aplicados");
 
-        Specification<Payment> spec = PaymentSpecification.hasExternalId(externalId)
+        Long currentUserId = com.conectaai.security.SecurityUtils.getCurrentUserId();
+
+        Specification<Payment> spec = PaymentSpecification.hasUserId(currentUserId)
+                .and(PaymentSpecification.hasExternalId(externalId))
                 .and(PaymentSpecification.hasCustomerId(customerId))
                 .and(PaymentSpecification.hasProvider(provider))
                 .and(PaymentSpecification.hasStatus(status))

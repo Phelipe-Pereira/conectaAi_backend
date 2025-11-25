@@ -1,5 +1,6 @@
 package com.conectaai.dto.customer;
 
+import com.conectaai.enums.Provider;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDate;
@@ -49,6 +50,8 @@ public record CustomerResponseDto(
         
         @JsonProperty("provider_customer_id")
         String providerCustomerId,
+        
+        Provider provider,
         
         Boolean active,
         
