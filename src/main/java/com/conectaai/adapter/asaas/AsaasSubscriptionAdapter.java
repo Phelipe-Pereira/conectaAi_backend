@@ -7,6 +7,9 @@ import com.conectaai.domain.Customer;
 import com.conectaai.enums.Provider;
 import com.conectaai.exception.GatewayException;
 import com.conectaai.logger.AppLogger;
+import com.conectaai.security.SecurityUtils;
+import com.conectaai.service.gateway.AsaasSdkFactory;
+import com.conectaai.service.gateway.GatewayConfigService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -36,7 +39,18 @@ public class AsaasSubscriptionAdapter implements SubscriptionGatewayAdapter {
     private static final String FIELD_DESCRIPTION = "description";
     private static final String FIELD_EXTERNAL_REFERENCE = "externalReference";
 
-    private final AsaasSdk asaasSdk;
+    private final AsaasSdkFactory asaasSdkFactory;
+    private final GatewayConfigService gatewayConfigService;
+
+    private AsaasSdk getAsaasSdk() {
+        Long userId = SecurityUtils.getCurrentUserId();
+        String apiKey = gatewayConfigService.getAsaasApiKey(userId);
+        if (apiKey == null) {
+            throw new GatewayException(Provider.ASAAS, 
+                "Chave do Asaas não configurada. Configure sua chave nas configurações do gateway.");
+        }
+        return asaasSdkFactory.createSdkForUser(apiKey);
+    }
 
     @Override
     public GatewaySubscriptionResponse createSubscription(
@@ -53,6 +67,7 @@ public class AsaasSubscriptionAdapter implements SubscriptionGatewayAdapter {
                 customer.getExternalId(), amount);
 
         try {
+            AsaasSdk asaasSdk = getAsaasSdk();
             Object subscriptionService = getSubscriptionService(asaasSdk);
             Object request = createSubscriptionRequest(customer, amount, interval, 
                     paymentMethod, description, startAt, endAt, externalId);
@@ -69,6 +84,7 @@ public class AsaasSubscriptionAdapter implements SubscriptionGatewayAdapter {
         LOGGER.info("getSubscription", "Buscando assinatura no Asaas: id={}", providerSubscriptionId);
 
         try {
+            AsaasSdk asaasSdk = getAsaasSdk();
             Object subscriptionService = getSubscriptionService(asaasSdk);
             Object response = invokeMethod(subscriptionService, "retrieveASingleSubscription", providerSubscriptionId);
             return mapToGatewayResponse(response);
@@ -83,6 +99,7 @@ public class AsaasSubscriptionAdapter implements SubscriptionGatewayAdapter {
         LOGGER.info("cancelSubscription", "Cancelando assinatura no Asaas: id={}", providerSubscriptionId);
 
         try {
+            AsaasSdk asaasSdk = getAsaasSdk();
             Object subscriptionService = getSubscriptionService(asaasSdk);
             invokeMethod(subscriptionService, "removeSubscription", providerSubscriptionId);
             LOGGER.info("cancelSubscription", "Assinatura cancelada no Asaas com sucesso");
@@ -98,6 +115,7 @@ public class AsaasSubscriptionAdapter implements SubscriptionGatewayAdapter {
                 customer, offset, limit);
 
         try {
+            AsaasSdk asaasSdk = getAsaasSdk();
             Object subscriptionService = getSubscriptionService(asaasSdk);
             Object listParameters = createListSubscriptionsParameters(customer, customerGroupName, billingType, status, externalReference, offset, limit);
             Object response = invokeMethod(subscriptionService, "listSubscriptions", listParameters);
@@ -113,6 +131,7 @@ public class AsaasSubscriptionAdapter implements SubscriptionGatewayAdapter {
         LOGGER.info("updateSubscription", "Atualizando assinatura no Asaas: id={}", providerSubscriptionId);
 
         try {
+            AsaasSdk asaasSdk = getAsaasSdk();
             Object subscriptionService = getSubscriptionService(asaasSdk);
             Object request = createSubscriptionUpdateRequest(customer, amount, interval, paymentMethod, description, startAt, endAt, externalId);
             Object response = invokeMethod(subscriptionService, "updateExistingSubscription", providerSubscriptionId, request);

@@ -26,6 +26,10 @@ public record RegisterRequestDto(
                 regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$",
                 message = "Senha deve conter: letra maiúscula, minúscula, número e caractere especial"
         )
-        String password
+        String password,
+
+        @NotBlank(message = "CPF ou CNPJ é obrigatório")
+        @Size(min = 11, max = 18, message = "CPF ou CNPJ inválido")
+        String cpfCnpj
 
 ) { }

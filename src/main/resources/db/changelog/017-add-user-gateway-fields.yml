@@ -1,0 +1,27 @@
+databaseChangeLog:
+  - changeSet:
+      id: 017-add-user-gateway-fields
+      author: system
+      changes:
+        - addColumn:
+            tableName: users
+            columns:
+              - column:
+                  name: asaas_api_key
+                  type: VARCHAR(500)
+                  constraints:
+                    nullable: true
+
+              - column:
+                  name: cpf_cnpj
+                  type: VARCHAR(18)
+                  constraints:
+                    nullable: true
+
+        - createIndex:
+            tableName: users
+            indexName: idx_user_cpf_cnpj
+            columns:
+              - column:
+                  name: cpf_cnpj
+

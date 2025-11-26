@@ -6,6 +6,9 @@ import com.conectaai.domain.Customer;
 import com.conectaai.enums.Provider;
 import com.conectaai.exception.GatewayException;
 import com.conectaai.logger.AppLogger;
+import com.conectaai.security.SecurityUtils;
+import com.conectaai.service.gateway.AsaasSdkFactory;
+import com.conectaai.service.gateway.GatewayConfigService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -34,7 +37,18 @@ public class AsaasCustomerAdapter implements CustomerGatewayAdapter {
     private static final String FIELD_PROVINCE = "province";
     private static final String FIELD_EXTERNAL_REFERENCE = "externalReference";
 
-    private final AsaasSdk asaasSdk;
+    private final AsaasSdkFactory asaasSdkFactory;
+    private final GatewayConfigService gatewayConfigService;
+
+    private AsaasSdk getAsaasSdk() {
+        Long userId = SecurityUtils.getCurrentUserId();
+        String apiKey = gatewayConfigService.getAsaasApiKey(userId);
+        if (apiKey == null) {
+            throw new GatewayException(Provider.ASAAS, 
+                "Chave do Asaas não configurada. Configure sua chave nas configurações do gateway.");
+        }
+        return asaasSdkFactory.createSdkForUser(apiKey);
+    }
 
     @Override
     public String createCustomer(Customer customer) {
@@ -42,6 +56,7 @@ public class AsaasCustomerAdapter implements CustomerGatewayAdapter {
                 customer.getEmail(), customer.getExternalId());
 
         try {
+            AsaasSdk asaasSdk = getAsaasSdk();
             LOGGER.info("createCustomer", "Obtendo CustomerService do AsaasSdk");
             Object customerService = getCustomerService(asaasSdk);
             LOGGER.info("createCustomer", "CustomerService obtido com sucesso");
@@ -72,6 +87,7 @@ public class AsaasCustomerAdapter implements CustomerGatewayAdapter {
         LOGGER.info("getCustomer", "Buscando customer no Asaas: id={}", providerCustomerId);
 
         try {
+            AsaasSdk asaasSdk = getAsaasSdk();
             Object customerService = getCustomerService(asaasSdk);
             return invokeMethod(customerService, "retrieveASingleCustomer", providerCustomerId);
         } catch (Exception e) {
@@ -90,6 +106,7 @@ public class AsaasCustomerAdapter implements CustomerGatewayAdapter {
                 customer.getProviderCustomerId());
 
         try {
+            AsaasSdk asaasSdk = getAsaasSdk();
             Object customerService = getCustomerService(asaasSdk);
             Object request = createCustomerUpdateRequest(customer);
             Object response = invokeMethod(customerService, "updateExistingCustomer", customer.getProviderCustomerId(), request);
@@ -105,6 +122,7 @@ public class AsaasCustomerAdapter implements CustomerGatewayAdapter {
         LOGGER.info("deleteCustomer", "Removendo customer do Asaas: id={}", providerCustomerId);
 
         try {
+            AsaasSdk asaasSdk = getAsaasSdk();
             Object customerService = getCustomerService(asaasSdk);
             invokeMethod(customerService, "removeCustomer", providerCustomerId);
             LOGGER.info("deleteCustomer", "Customer removido do Asaas com sucesso");
@@ -120,6 +138,7 @@ public class AsaasCustomerAdapter implements CustomerGatewayAdapter {
                 name, email, offset, limit);
 
         try {
+            AsaasSdk asaasSdk = getAsaasSdk();
             Object customerService = getCustomerService(asaasSdk);
             Object listParameters = createListCustomersParameters(name, email, cpfCnpj, groupName, externalReference, offset, limit);
             Object response = invokeMethod(customerService, "listCustomers", listParameters);
@@ -135,6 +154,7 @@ public class AsaasCustomerAdapter implements CustomerGatewayAdapter {
         LOGGER.info("restoreCustomer", "Restaurando customer no Asaas: id={}", providerCustomerId);
 
         try {
+            AsaasSdk asaasSdk = getAsaasSdk();
             Object customerService = getCustomerService(asaasSdk);
             Object response = invokeMethod(customerService, "restoreRemovedCustomer", providerCustomerId, new Object());
             LOGGER.info("restoreCustomer", "Customer restaurado no Asaas com sucesso");

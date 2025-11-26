@@ -12,11 +12,16 @@ public class AsaasSdkConfig {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(AsaasSdkConfig.class);
 
+    @Deprecated
     @Value("${ASAAS_TOKEN:}")
     private String asaasToken;
 
+    @Deprecated
     @Bean
     public AsaasSdk asaasSdk() {
+        log.warn("AsaasSdkConfig.asaasSdk() está DEPRECATED. Use AsaasSdkFactory para criar instâncias dinâmicas por usuário.");
+        log.warn("O ASAAS_TOKEN do .env não é mais utilizado. Cada usuário deve configurar sua própria chave.");
+        
         if (asaasToken == null || asaasToken.isBlank()) {
             log.warn("ASAAS_TOKEN não configurado ou vazio!");
         } else {

@@ -45,6 +45,12 @@ public class User implements UserDetails {
     @Builder.Default
     private Boolean active = true;
 
+    @Column(name = "asaas_api_key", length = 500)
+    private String asaasApiKey;
+
+    @Column(name = "cpf_cnpj", length = 18)
+    private String cpfCnpj;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

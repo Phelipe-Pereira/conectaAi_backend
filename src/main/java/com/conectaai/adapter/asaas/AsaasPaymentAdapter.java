@@ -7,6 +7,9 @@ import com.conectaai.domain.Customer;
 import com.conectaai.enums.Provider;
 import com.conectaai.exception.GatewayException;
 import com.conectaai.logger.AppLogger;
+import com.conectaai.security.SecurityUtils;
+import com.conectaai.service.gateway.AsaasSdkFactory;
+import com.conectaai.service.gateway.GatewayConfigService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -37,7 +40,18 @@ public class AsaasPaymentAdapter implements PaymentGatewayAdapter {
     private static final String FIELD_CLIENT_PAYMENT_DATE = "clientPaymentDate";
     private static final String PAYMENT_METHOD_BOLETO = "BOLETO";
 
-    private final AsaasSdk asaasSdk;
+    private final AsaasSdkFactory asaasSdkFactory;
+    private final GatewayConfigService gatewayConfigService;
+
+    private AsaasSdk getAsaasSdk() {
+        Long userId = SecurityUtils.getCurrentUserId();
+        String apiKey = gatewayConfigService.getAsaasApiKey(userId);
+        if (apiKey == null) {
+            throw new GatewayException(Provider.ASAAS, 
+                "Chave do Asaas não configurada. Configure sua chave nas configurações do gateway.");
+        }
+        return asaasSdkFactory.createSdkForUser(apiKey);
+    }
 
     @Override
     public GatewayPaymentResponse createPayment(
@@ -52,6 +66,7 @@ public class AsaasPaymentAdapter implements PaymentGatewayAdapter {
                 customer.getExternalId(), amount);
 
         try {
+            AsaasSdk asaasSdk = getAsaasSdk();
             LOGGER.info("createPayment", "Obtendo PaymentService do AsaasSdk");
             Object paymentService = getPaymentService(asaasSdk);
             LOGGER.info("createPayment", "PaymentService obtido com sucesso");
@@ -79,6 +94,7 @@ public class AsaasPaymentAdapter implements PaymentGatewayAdapter {
         LOGGER.info("getPayment", "Buscando pagamento no Asaas: id={}", providerPaymentId);
 
         try {
+            AsaasSdk asaasSdk = getAsaasSdk();
             Object paymentService = getPaymentService(asaasSdk);
             Object response = invokeMethod(paymentService, "retrieveASinglePayment", providerPaymentId);
             return mapToGatewayResponse(response);
@@ -94,6 +110,7 @@ public class AsaasPaymentAdapter implements PaymentGatewayAdapter {
                 customerId, offset, limit);
 
         try {
+            AsaasSdk asaasSdk = getAsaasSdk();
             Object paymentService = getPaymentService(asaasSdk);
             
             Object listParameters = createListPaymentsParameters(customerId, offset, limit);
@@ -114,6 +131,7 @@ public class AsaasPaymentAdapter implements PaymentGatewayAdapter {
         LOGGER.info("cancelPayment", "Cancelando pagamento no Asaas: id={}", providerPaymentId);
 
         try {
+            AsaasSdk asaasSdk = getAsaasSdk();
             Object paymentService = getPaymentService(asaasSdk);
             invokeMethod(paymentService, "deletePayment", providerPaymentId);
             LOGGER.info("cancelPayment", "Pagamento cancelado no Asaas com sucesso");
@@ -128,6 +146,7 @@ public class AsaasPaymentAdapter implements PaymentGatewayAdapter {
         LOGGER.info("restorePayment", "Restaurando pagamento no Asaas: id={}", providerPaymentId);
 
         try {
+            AsaasSdk asaasSdk = getAsaasSdk();
             Object paymentService = getPaymentService(asaasSdk);
             Object response = invokeMethod(paymentService, "restoreRemovedPayment", providerPaymentId, new Object());
             LOGGER.info("restorePayment", "Pagamento restaurado no Asaas com sucesso");

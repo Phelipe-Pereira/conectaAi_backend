@@ -7,6 +7,9 @@ import com.conectaai.domain.Payment;
 import com.conectaai.enums.Provider;
 import com.conectaai.exception.GatewayException;
 import com.conectaai.logger.AppLogger;
+import com.conectaai.security.SecurityUtils;
+import com.conectaai.service.gateway.AsaasSdkFactory;
+import com.conectaai.service.gateway.GatewayConfigService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -25,7 +28,18 @@ public class AsaasRefundAdapter implements RefundGatewayAdapter {
     private static final String FIELD_DESCRIPTION = "description";
     private static final String FIELD_DATE_CREATED = "dateCreated";
 
-    private final AsaasSdk asaasSdk;
+    private final AsaasSdkFactory asaasSdkFactory;
+    private final GatewayConfigService gatewayConfigService;
+
+    private AsaasSdk getAsaasSdk() {
+        Long userId = SecurityUtils.getCurrentUserId();
+        String apiKey = gatewayConfigService.getAsaasApiKey(userId);
+        if (apiKey == null) {
+            throw new GatewayException(Provider.ASAAS, 
+                "Chave do Asaas não configurada. Configure sua chave nas configurações do gateway.");
+        }
+        return asaasSdkFactory.createSdkForUser(apiKey);
+    }
 
     @Override
     public GatewayRefundResponse createRefund(
@@ -37,6 +51,7 @@ public class AsaasRefundAdapter implements RefundGatewayAdapter {
                 payment.getProviderPaymentId(), amount);
 
         try {
+            AsaasSdk asaasSdk = getAsaasSdk();
             Object refundService = getRefundService(asaasSdk);
             Object request = createRefundRequest(amount, reason);
             Object response = invokeMethod(refundService, "create", payment.getProviderPaymentId(), request);
@@ -53,6 +68,7 @@ public class AsaasRefundAdapter implements RefundGatewayAdapter {
         LOGGER.info("getRefund", "Buscando reembolso no Asaas: id={}", providerRefundId);
 
         try {
+            AsaasSdk asaasSdk = getAsaasSdk();
             Object refundService = getRefundService(asaasSdk);
             Object response = invokeMethod(refundService, "getById", providerRefundId);
             return mapToGatewayResponse(response);

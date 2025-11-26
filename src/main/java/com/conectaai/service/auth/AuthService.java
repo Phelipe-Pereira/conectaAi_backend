@@ -65,10 +65,12 @@ public class AuthService {
 
     private User createUser(RegisterRequestDto registerRequest) {
         String hashedPassword = passwordEncoder.encode(registerRequest.password());
+        String normalizedCpfCnpj = com.conectaai.utils.DataNormalizer.cpfCnpj(registerRequest.cpfCnpj());
         return User.builder()
                 .username(registerRequest.username())
                 .email(registerRequest.email())
                 .password(hashedPassword)
+                .cpfCnpj(normalizedCpfCnpj)
                 .active(true)
                 .roles(new ArrayList<>())
                 .permissions(new ArrayList<>())

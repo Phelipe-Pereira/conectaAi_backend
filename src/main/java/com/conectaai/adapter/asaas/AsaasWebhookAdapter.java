@@ -6,6 +6,9 @@ import com.conectaai.adapter.gateway.WebhookGatewayAdapter;
 import com.conectaai.enums.Provider;
 import com.conectaai.exception.GatewayException;
 import com.conectaai.logger.AppLogger;
+import com.conectaai.security.SecurityUtils;
+import com.conectaai.service.gateway.AsaasSdkFactory;
+import com.conectaai.service.gateway.GatewayConfigService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -20,13 +23,25 @@ public class AsaasWebhookAdapter implements WebhookGatewayAdapter {
 
     private static final AppLogger LOGGER = AppLogger.getLogger(AsaasWebhookAdapter.class);
 
-    private final AsaasSdk asaasSdk;
+    private final AsaasSdkFactory asaasSdkFactory;
+    private final GatewayConfigService gatewayConfigService;
+
+    private AsaasSdk getAsaasSdk() {
+        Long userId = SecurityUtils.getCurrentUserId();
+        String apiKey = gatewayConfigService.getAsaasApiKey(userId);
+        if (apiKey == null) {
+            throw new GatewayException(Provider.ASAAS, 
+                "Chave do Asaas não configurada. Configure sua chave nas configurações do gateway.");
+        }
+        return asaasSdkFactory.createSdkForUser(apiKey);
+    }
 
     @Override
     public GatewayWebhookResponse createWebhook(String url, List<String> events, String secret) {
         LOGGER.info("createWebhook", "Criando webhook no Asaas: url={}, events={}", url, events);
 
         try {
+            AsaasSdk asaasSdk = getAsaasSdk();
             Object webhookService = getWebhookService(asaasSdk);
 
             Object request = createWebhookRequest(url, events, secret);
@@ -70,6 +85,7 @@ public class AsaasWebhookAdapter implements WebhookGatewayAdapter {
         LOGGER.info("getWebhook", "Buscando webhook no Asaas: id={}", providerEndpointId);
 
         try {
+            AsaasSdk asaasSdk = getAsaasSdk();
             Object webhookService = getWebhookService(asaasSdk);
 
             Object webhookResponse = invokeWebhookMethod(webhookService, "retrieveASingleWebhook", providerEndpointId);
@@ -111,6 +127,7 @@ public class AsaasWebhookAdapter implements WebhookGatewayAdapter {
                     providerEndpointId, url, events);
 
         try {
+            AsaasSdk asaasSdk = getAsaasSdk();
             Object webhookService = getWebhookService(asaasSdk);
 
             Object existingWebhook = invokeWebhookMethod(webhookService, "retrieveASingleWebhook", providerEndpointId);
@@ -161,6 +178,7 @@ public class AsaasWebhookAdapter implements WebhookGatewayAdapter {
         LOGGER.info("deleteWebhook", "Deletando webhook no Asaas: id={}", providerEndpointId);
 
         try {
+            AsaasSdk asaasSdk = getAsaasSdk();
             Object webhookService = getWebhookService(asaasSdk);
 
             invokeWebhookMethod(webhookService, "removeWebhook", providerEndpointId);

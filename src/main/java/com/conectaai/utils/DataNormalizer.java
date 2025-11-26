@@ -13,6 +13,10 @@ public final class DataNormalizer {
         return StringUtils.isBlank(document) ? null : StringUtils.trimToNull(document.replaceAll("\\D", ""));
     }
 
+    public static String cpfCnpj(String cpfCnpj) {
+        return documentNumeric(cpfCnpj);
+    }
+
     public static String phone(String phone) {
         return StringUtils.isBlank(phone) ? null : StringUtils.trimToNull(phone.replaceAll("\\D", ""));
     }
