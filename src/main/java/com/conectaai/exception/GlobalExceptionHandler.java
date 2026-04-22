@@ -92,7 +92,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponseDto> handleValidationErrors(MethodArgumentNotValidException exception) {
         List<ValidationErrorDto> validationErrors = new ArrayList<>();
-        
+
         for (FieldError fieldError : exception.getBindingResult().getFieldErrors()) {
             ValidationErrorDto validationError = new ValidationErrorDto(
                     fieldError.getField(),
@@ -106,7 +106,7 @@ public class GlobalExceptionHandler {
                 "Erro de validação nos campos enviados",
                 validationErrors
         );
-        
+
         ErrorResponseDto errorResponse = new ErrorResponseDto(errorDetail);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
@@ -119,6 +119,18 @@ public class GlobalExceptionHandler {
         );
         ErrorResponseDto errorResponse = new ErrorResponseDto(errorDetail);
         return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(errorResponse);
+    }
+
+    @ExceptionHandler(GatewayException.class)
+    public ResponseEntity<ErrorResponseDto> handleGatewayException(GatewayException exception) {
+        LOGGER.error("handleGatewayException",
+                "Erro no gateway de pagamento: {}", exception.getMessage());
+        ErrorDetailDto errorDetail = new ErrorDetailDto(
+                "GATEWAY_ERROR",
+                "Erro ao comunicar com o gateway de pagamento: " + exception.getMessage()
+        );
+        ErrorResponseDto errorResponse = new ErrorResponseDto(errorDetail);
+        return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(errorResponse);
     }
 
     @ExceptionHandler(CustomerAlreadyExistsException.class)
@@ -331,24 +343,24 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponseDto> handleDataIntegrityViolation(
             org.springframework.dao.DataIntegrityViolationException exception) {
         String message = "Erro de integridade de dados";
-        
+
         String exceptionMessage = exception.getMessage();
         if (exceptionMessage != null) {
-            if (exceptionMessage.contains("customer_email_key") || 
-                exceptionMessage.contains("idx_customer_email")) {
+            if (exceptionMessage.contains("customer_email_key") ||
+                    exceptionMessage.contains("idx_customer_email")) {
                 message = "Email já cadastrado";
             } else if (exceptionMessage.contains("customer_cpf_key") ||
-                       exceptionMessage.contains("cpf")) {
+                    exceptionMessage.contains("cpf")) {
                 message = "CPF já cadastrado";
             } else if (exceptionMessage.contains("customer_cnpj_key") ||
-                       exceptionMessage.contains("cnpj")) {
+                    exceptionMessage.contains("cnpj")) {
                 message = "CNPJ já cadastrado";
             } else if (exceptionMessage.contains("customer_external_id_key") ||
-                       exceptionMessage.contains("external_id")) {
+                    exceptionMessage.contains("external_id")) {
                 message = "ID externo já cadastrado";
             }
         }
-        
+
         ErrorDetailDto errorDetail = new ErrorDetailDto(
                 "DUPLICATE_ENTRY",
                 message
@@ -362,7 +374,7 @@ public class GlobalExceptionHandler {
         LOGGER.error("handleGenericException",
                 "Erro inesperado: {} - Mensagem: {}", exception.getClass().getName(), exception.getMessage());
         LOGGER.error("handleGenericException", "Stack trace completo:", exception);
-        
+
         ErrorDetailDto errorDetail = new ErrorDetailDto(
                 "INTERNAL_SERVER_ERROR",
                 "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde"
